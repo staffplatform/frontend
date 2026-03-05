@@ -1,6 +1,11 @@
 import {EMethod, EStatus} from "@/enums";
 import Cookies from "js-cookie";
 
+interface IApiError extends Error {
+    status?: number;
+    data?: { message?: string };
+}
+
 export function useApi(baseUrl: string) {
     async function request<T, R>(
         method: EMethod,
@@ -28,7 +33,7 @@ export function useApi(baseUrl: string) {
                 Cookies.remove("accessToken")
                 Cookies.remove("refreshToken")
             }
-            const error = new Error();
+            const error: IApiError = new Error();
             error.status = response.status;
             error.data = await response.json();
             throw error;

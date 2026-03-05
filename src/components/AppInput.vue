@@ -11,7 +11,7 @@ interface AppInputProps {
 const isActive = ref(false);
 const model = defineModel();
 
-withDefaults(defineProps<AppInputProps>(), {});
+defineProps<AppInputProps>()
 
 const onBlur = () => {
     isActive.value = true;
@@ -21,7 +21,7 @@ const onBlur = () => {
 <template>
     <input
         :type="type"
-        class="input"
+        class="input w-full"
         v-model="model"
         @blur="onBlur"
         :placeholder="placeholder"

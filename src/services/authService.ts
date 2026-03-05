@@ -2,30 +2,30 @@ import { useApi } from "@/composables/useApi";
 import { userService } from "@/services/userService";
 import { useUserStore } from "@/stores/useUserStore";
 import { setToken } from "@/services/tokenService";
-import type {IToken, IUser} from "@/interfaces";
+import type { IAuthResponse } from "@/interfaces";
 
-interface ILogin {
-    tokens: {
-        "accessToken": string,
-        "refreshToken": string,
-    }
-    user: IUser
+interface ILoginDto {
+    email: string;
+    password: string;
 }
 
-export async function authService(email: string, password: string) {
+export async function authService(user: ILoginDto) {
     const store = useUserStore();
 
     const api = useApi(import.meta.env.VITE_API);
-    const date: ILogin = await api.post<{ email: string; password: string }, ILogin>(
+    const data: IAuthResponse = await api.post(
         "/auth/login", 
-        { email, password }
+        user
     );
 
-    setToken("accessToken", date.tokens.accessToken)
-    setToken("refreshToken", date.tokens.refreshToken)
+    setToken("accessToken", data.tokens.accessToken)
+    setToken("refreshToken", data.tokens.refreshToken)
 
     const me = await userService();
-    store.setUser(me);
+
+    if (me) {
+        store.setUser(me);
+    }
 
     return me;
 }

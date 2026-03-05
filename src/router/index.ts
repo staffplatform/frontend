@@ -43,7 +43,9 @@ router.beforeEach(async (to) => {
     if (getAccessToken() || getRefreshToken()) {
         try {
             const me = await userService();
-            store.setUser(me);
+            if (me) {
+                store.setUser(me);
+            }
         } catch (error) {
             logError(error)
         }

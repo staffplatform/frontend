@@ -1,6 +1,6 @@
 import { computed, type Ref } from "vue";
 
-type typeValidation = "email" | "password";
+type typeValidation = "email" | "password" | "text";
 
 export function useValidation(
     type: typeValidation,
@@ -24,6 +24,13 @@ export function useValidation(
         if (type === "password") {
             if (value.length < 6) {
                 return "Пароль должен содержать больше 6 значений";
+            }
+            return null;
+        }
+
+        if (type === "text") {
+            if (value.length === 0) {
+                return "Поля не должно быть пустым";
             }
             return null;
         }
