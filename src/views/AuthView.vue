@@ -37,7 +37,7 @@ const isSubmitDisable = computed(() => {
 const submitForm = async () => {
     isLoading.value = true;
     try {
-        await authService(auth.email, auth.password);
+        await authService(auth);
         await router.push({ path: ERouter.DASHBOARD });
         toast.success("Вы успешно авторизовались!");
     } catch (error) {
