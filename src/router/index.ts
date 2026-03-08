@@ -1,12 +1,14 @@
 import { createWebHistory, createRouter } from "vue-router";
 import AuthView from "@/views/AuthView.vue";
 import RegisterView from "@/views/RegisterView.vue";
-import { ERouter } from "@/enums";
+import { ERouter, ERouterName } from "@/enums";
 import { useUserStore } from "@/stores/useUserStore";
 import { userService } from "@/services/userService";
 import DashboardView from "@/views/DashboardView.vue";
 import {useError} from "@/composables/useError";
 import { getAccessToken, getRefreshToken } from "@/services/tokenService";
+import ProfileView from "@/views/ProfileView.vue";
+import ScheduleView from "@/views/ScheduleView.vue";
 
 const { logError } = useError()
 
@@ -14,23 +16,33 @@ const routes = [
     {
         path: "/",
         redirect: ERouter.AUTH,
-        name: "Home",
+        name: ERouterName.HOME,
     },
     {
         path: ERouter.AUTH,
         component: AuthView,
-        name: "Auth",
+        name: ERouterName.AUTH,
     },
     {
         path: ERouter.REGISTER,
         component: RegisterView,
-        name: "Register",
+        name: ERouterName.REGISTER,
     },
     {
         path: ERouter.DASHBOARD,
         component: DashboardView,
-        name: "Dashboard",
+        name: ERouterName.DASHBOARD,
     },
+    {
+        path: ERouter.PROFILE,
+        component: ProfileView,
+        name: ERouterName.PROFILE,
+    },
+    {
+        path: ERouter.SCHEDULE,
+        component: ScheduleView,
+        name: ERouterName.SCHEDULE,
+    }
 ];
 
 const router = createRouter({
@@ -56,13 +68,13 @@ router.beforeEach(async (to) => {
         to.path !== ERouter.AUTH &&
         to.path !== ERouter.REGISTER
     ) {
-        return { name: "Auth" };
+        return { path: ERouter.AUTH };
     }
     if (
         store.isLoggedIn &&
         (to.path === ERouter.AUTH || to.path === ERouter.REGISTER)
     ) {
-        return { name: "Dashboard" };
+        return { path: ERouter.DASHBOARD };
     }
     return true;
 });
