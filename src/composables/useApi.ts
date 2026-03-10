@@ -58,5 +58,9 @@ export function useApi(baseUrl: string) {
         return request(EMethod.DELETE, url);
     }
 
-    return { get, post, put, del };
+    function patch<T, R>(url: string, body: T): Promise<R>  {
+        return request(EMethod.PATCH, url, body);
+    }
+
+    return { get, post, put, patch, del };
 }

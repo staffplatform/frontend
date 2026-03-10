@@ -4,8 +4,9 @@ import type { InputType } from "@/constants/form";
 
 interface AppInputProps {
     type: InputType;
-    error: string | null;
-    placeholder: string;
+    error?: string | null;
+    placeholder?: string;
+    disabled?: boolean;
 }
 
 const isActive = ref(false);
@@ -24,6 +25,7 @@ const onBlur = () => {
         class="input w-full"
         v-model="model"
         @blur="onBlur"
+        :disabled="disabled"
         :placeholder="placeholder"
     />
     <div v-if="error && isActive" class="relative pb-2">

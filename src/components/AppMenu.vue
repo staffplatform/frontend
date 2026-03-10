@@ -16,16 +16,12 @@ const emit = defineEmits<{
 const menuLinks = computed(() => {
     if (props.isLogin) {
         return [
-            { to: ERouter.DASHBOARD, label: ERouterName.DASHBOARD },
             { to: ERouter.PROFILE, label: ERouterName.PROFILE },
             { to: ERouter.SCHEDULE, label: ERouterName.SCHEDULE },
+            { to: ERouter.DASHBOARD, label: ERouterName.DASHBOARD }
+            
         ];
     }
-
-    return [
-        { to: ERouter.AUTH, label: ERouterName.AUTH },
-        { to: ERouter.REGISTER, label: ERouterName.REGISTER },
-    ];
 })
 </script>
 <template>
