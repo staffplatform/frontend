@@ -41,7 +41,9 @@ function logout() {
             <h1 class="header-title">{{ route.name ?? '' }}</h1>
         </div>
         <div class="buttons">
-            <div v-if="props.isLogin" class="user-button">{{ initials }}</div>
+            <button v-if="props.isLogin" @click="router.push({ path: ERouter.PROFILE })" type="button" >
+                <p class="user-button">{{ initials }}</p>
+            </button>
             <button v-if="props.isLogin" @click="logout" class="auth-button">Выйти</button>
         </div>
     </div>
@@ -55,6 +57,7 @@ function logout() {
     background-color: #ffffff;
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
+    margin-bottom: 20px;
 }
 
 .header-info {
@@ -98,8 +101,8 @@ function logout() {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background-color: #fff;
     border: 1px solid #000000;
+    cursor: pointer;
 }
 
 .auth-button {
