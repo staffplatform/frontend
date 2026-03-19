@@ -38,7 +38,7 @@ const submitForm = async () => {
     isLoading.value = true;
     try {
         await authService(auth);
-        await router.push({ path: ERouter.DASHBOARD });
+        await router.push({ path: ERouter.SCHEDULE });
         toast.success("Вы успешно авторизовались!");
     } catch (error) {
         if (error instanceof Error) {
@@ -64,7 +64,7 @@ const submitForm = async () => {
         >
             <div>
                 <label>
-                    test.user@example.com
+                    employee@example.com
                     <span class="label-text text-gray-900"
                         >Почта</span
                     >

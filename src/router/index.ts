@@ -4,7 +4,6 @@ import RegisterView from "@/views/RegisterView.vue";
 import { ERouter, ERouterName } from "@/enums";
 import { useUserStore } from "@/stores/useUserStore";
 import { userService } from "@/services/userService";
-import DashboardView from "@/views/DashboardView.vue";
 import {useError} from "@/composables/useError";
 import { getAccessToken, getRefreshToken } from "@/services/tokenService";
 import ProfileView from "@/views/ProfileView.vue";
@@ -29,11 +28,6 @@ const routes = [
         name: ERouterName.REGISTER,
     },
     {
-        path: ERouter.DASHBOARD,
-        component: DashboardView,
-        name: ERouterName.DASHBOARD,
-    },
-    {
         path: ERouter.PROFILE,
         component: ProfileView,
         name: ERouterName.PROFILE,
@@ -42,6 +36,11 @@ const routes = [
         path: ERouter.SCHEDULE,
         component: ScheduleView,
         name: ERouterName.SCHEDULE,
+    },
+    {
+        path: '/schedule/:mode',
+        component: ScheduleView,
+    
     }
 ];
 
@@ -74,7 +73,7 @@ router.beforeEach(async (to) => {
         store.isLoggedIn &&
         (to.path === ERouter.AUTH || to.path === ERouter.REGISTER)
     ) {
-        return { path: ERouter.DASHBOARD };
+        return { path: ERouter.SCHEDULE };
     }
     return true;
 });

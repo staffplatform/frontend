@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ERouter } from '@/enums';
 import type { IUser } from '@/interfaces';
+import { useScheduleStore } from '@/stores/useScheduleStore';
 import { computed } from 'vue';
-import { RouterLink, useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 interface AppHeaderProps {
     user: IUser | null,
@@ -10,12 +11,22 @@ interface AppHeaderProps {
     logout: () => void
 }
 
+const scheduleStore = useScheduleStore()
+
 const route = useRoute()
 const router = useRouter()
 const props = defineProps<AppHeaderProps>()
 const emit = defineEmits<{
     (event: 'toggle-menu'): void
 }>()
+
+const scheduleName = computed(() => {
+    if (scheduleStore.schedule?.store?.name) {
+        return `${route.name}: ${scheduleStore.schedule.store.name}`
+    }
+
+    return route.name
+})
 
 const initials = computed(() => {
     const firstName = props.user?.firstName.split('')[0] || ''
@@ -38,7 +49,7 @@ function logout() {
                     <span class="menu-plate"></span>
                 </div>
             </button>
-            <h1 class="header-title">{{ route.name ?? '' }}</h1>
+            <h1 class="header-title">{{ scheduleName }}</h1>
         </div>
         <div class="buttons">
             <button v-if="props.isLogin" @click="router.push({ path: ERouter.PROFILE })" type="button" >
