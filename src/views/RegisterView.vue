@@ -52,7 +52,7 @@ const submitForm = async () => {
     isLoading.value = true
     try {
         await registerService(register)
-        await router.push({ path: ERouter.DASHBOARD });
+        await router.push({ path: ERouter.SCHEDULE });
         toast.success("Вы успешно зарегистрировались!");
     } catch (error) {
         if (error instanceof Error) {

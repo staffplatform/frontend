@@ -18,8 +18,6 @@ const menuLinks = computed(() => {
         return [
             { to: ERouter.PROFILE, label: ERouterName.PROFILE },
             { to: ERouter.SCHEDULE, label: ERouterName.SCHEDULE },
-            { to: ERouter.DASHBOARD, label: ERouterName.DASHBOARD }
-            
         ];
     }
 })
