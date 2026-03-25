@@ -1,5 +1,6 @@
 const INPUT_TYPES = {
     DATE: "date",
+    TIME: "time",
     TEXT: "text",
     EMAIL: "email",
     PASSWORD: "password",
