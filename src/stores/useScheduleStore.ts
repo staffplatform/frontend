@@ -1,11 +1,11 @@
-import type { ISchedule } from "@/interfaces"
+import type { IScheduleMonth } from "@/interfaces"
 import { defineStore } from "pinia"
 import { ref } from "vue"
 
 export const useScheduleStore = defineStore('schedule', () => {
-    const schedule = ref(null)
+    const schedule = ref<IScheduleMonth | null>(null)
 
-    function setSchedule(value) {
+    function setSchedule(value: IScheduleMonth | null) {
         schedule.value = value
     }
 

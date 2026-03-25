@@ -3,7 +3,7 @@ import AppButton from './AppButton.vue';
 import AppModal from './AppModal.vue';
 
 defineProps<{
-    title: string
+    title?: string
 }>()
 const emit = defineEmits(['close'])
 </script>

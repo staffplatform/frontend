@@ -22,7 +22,7 @@ export function useApi(baseUrl: string) {
             credentials: "include",
         };
 
-        if (method !== EMethod.GET && method !== EMethod.DELETE) {
+        if (method !== EMethod.GET) {
             options.body = JSON.stringify(body);
         }
 
@@ -37,6 +37,9 @@ export function useApi(baseUrl: string) {
             error.status = response.status;
             error.data = await response.json();
             throw error;
+        }
+        if (response.status === 204) {
+            return 
         }
 
         return await response.json();
@@ -54,8 +57,8 @@ export function useApi(baseUrl: string) {
         return request(EMethod.PUT, url, body);
     }
 
-    function del<R>(url: string): Promise<R> {
-        return request(EMethod.DELETE, url);
+    function del<R>(url: string, options?): Promise<R> {
+        return request(EMethod.DELETE, url, options);
     }
 
     function patch<T, R>(url: string, body: T): Promise<R>  {
