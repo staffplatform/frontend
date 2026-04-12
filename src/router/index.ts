@@ -40,7 +40,7 @@ const routes = [
     {
         path: '/schedule/:mode',
         component: ScheduleView,
-    
+        name: ERouterName.SCHEDULE_MODE,
     }
 ];
 
