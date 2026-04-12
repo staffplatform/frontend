@@ -1,30 +1,38 @@
 import type { IScheduleMonth } from "@/interfaces";
 import { useApi } from "@/composables/useApi";
 
-interface ScheduleServiceParams {
+interface IMonthScheduleServiceParams {
     storeId: string;
     year: string;
     month: string;
 }
 
-interface DeleteScheduleEntryParams {
+interface IWeekScheduleServiceParams {
+    storeId: string;
+    week: string;
+}
+
+interface IDeleteScheduleEntryParams {
     storeId: string;
     userId: string;
     date: string;
 }
 
-export function getMonthScheduleService({ storeId, year, month }: ScheduleServiceParams) {
-    const api = useApi(import.meta.env.VITE_API);
+const api = useApi(import.meta.env.VITE_API);
+
+export function getMonthScheduleService({ storeId, year, month }: IMonthScheduleServiceParams) {
     return api.get<IScheduleMonth>(`/schedule/month?storeId=${storeId}&year=${year}&month=${month}`)
 }
 
 export function updateMonthScheduleService(options) {
-    const api = useApi(import.meta.env.VITE_API);
     return api.put('/schedule/month', options)
 }
 
-export function deleteMonthScheduleService({ storeId, userId, date }: DeleteScheduleEntryParams) {
-    const api = useApi(import.meta.env.VITE_API);
+export function getWeekScheduleService({storeId, week}: IWeekScheduleServiceParams) {
+    return api.get(`/schedule/week?storeId=${storeId}&week=${week}`)
+}
+
+export function deleteScheduleEntryService({ storeId, userId, date }: IDeleteScheduleEntryParams) {
     const searchParams = new URLSearchParams({
         storeId,
         userId,
@@ -35,6 +43,5 @@ export function deleteMonthScheduleService({ storeId, userId, date }: DeleteSche
 }
 
 export function getScheduleTypesService() {
-    const api = useApi(import.meta.env.VITE_API);
     return api.get('/schedule/types')
 }

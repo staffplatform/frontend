@@ -2,7 +2,7 @@
 import AppButton from '@/components/AppButton.vue';
 import AppInput from '@/components/AppInput.vue';
 import type { IEmployee, IScheduleTypes } from '@/interfaces';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 interface ScheduleEntryFormPayload {
     userId: string;
@@ -17,26 +17,53 @@ const props = defineProps<{
     employees: IEmployee[]
     scheduleTypes: IScheduleTypes
     selectDate: string
+    selectStartTime: string
+    selectedEntry: any
+    mode: string
 }>()
 
 const emit = defineEmits<{
     close: [];
-    submit: [payload: ScheduleEntryFormPayload];
+    "save-entry": [payload: ScheduleEntryFormPayload];
     delete: [payload: ScheduleEntryFormPayload]
 }>();
 
 const form = ref<ScheduleEntryFormPayload>({
     userId: '',
     date: props.selectDate,
-    startTime: '',
+    startTime: props.selectStartTime ?? '',
     endTime: '',
     type: '',
     comment: '',
 });
 
 function submitForm() {
-    emit('submit', { ...form.value });
+    emit('save-entry', { ...form.value });
 }
+
+watch(() => [props.selectedEntry, props.mode], () => {
+    if (props.mode === "edit" && props.selectedEntry) {
+        form.value = {
+            userId: props.selectedEntry.userId ?? '',
+            date: props.selectedEntry.date ?? '',
+            startTime: props.selectedEntry.startTime ?? '',
+            endTime: props.selectedEntry.endTime ?? '',
+            type: props.selectedEntry.type ?? '',
+            comment: props.selectedEntry.comment ?? '',
+        };
+        return;
+    }
+
+    form.value = {
+        userId: '',
+        date: props.selectDate ?? '',
+        startTime: props.selectStartTime ?? '',
+        endTime: '',
+        type: '',
+        comment: '',
+    }
+}, {immediate: true})
+
 </script>
 
 <template>
@@ -44,7 +71,7 @@ function submitForm() {
         <div class="schedule-form-card__header">
             <div>
                 <p class="schedule-form-card__eyebrow">Расписание</p>
-                <h2 class="schedule-form-card__title">Создать смену</h2>
+                <h2 class="schedule-form-card__title">{{ props.mode === 'create' ? 'Создать' : 'Редактировать ' }} смену</h2>
             </div>
         </div>
 
@@ -103,7 +130,12 @@ function submitForm() {
 
         <div class="schedule-form-card__actions">
             <AppButton @click="emit('close')" variant="secondary">Отмена</AppButton>
-            <AppButton @click="submitForm" variant="primary">Сохранить</AppButton>
+            <AppButton
+                @click="submitForm" 
+                variant="primary"
+            >
+                {{ props.mode === 'create' ? 'Создать' : 'Редактировать ' }}
+            </AppButton>
         </div>
     </aside>
 </template>
