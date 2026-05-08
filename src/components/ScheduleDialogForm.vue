@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppButton from '@/components/AppButton.vue';
 import AppInput from '@/components/AppInput.vue';
-import type { IEmployee, IScheduleTypes } from '@/interfaces';
+import type { IOrganizationEmployee, IScheduleTypes } from '@/interfaces';
 import { ref, watch } from 'vue';
 
 interface ScheduleEntryFormPayload {
@@ -14,7 +14,7 @@ interface ScheduleEntryFormPayload {
 }
 
 const props = defineProps<{
-    employees: IEmployee[]
+    employees: IOrganizationEmployee[]
     scheduleTypes: IScheduleTypes
     selectDate: string
     selectStartTime: string
@@ -170,13 +170,6 @@ watch(() => [props.selectedEntry, props.mode], () => {
 .schedule-form-card__title {
     font-size: 24px;
     font-weight: 600;
-}
-
-.schedule-form-card__header-icon {
-    width: 24px;
-    height: 24px;
-    color: #6b7280;
-    flex-shrink: 0;
 }
 
 .schedule-form-card__body {

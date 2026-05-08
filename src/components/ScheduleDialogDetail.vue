@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IEmployee, ISchedule, IScheduleTypes } from '@/interfaces';
+import type { IOrganizationEmployee, ISchedule, IScheduleTypes } from '@/interfaces';
 import { AdjustmentsHorizontalIcon } from '@heroicons/vue/24/outline';
 import { ref } from 'vue';
 
@@ -7,7 +7,7 @@ const isOpenSettings = ref(false)
 
 const props = defineProps<{
     selectedEntry: ISchedule
-    employees: IEmployee[]
+    employees: IOrganizationEmployee[]
     scheduleTypes: IScheduleTypes | null
 }>()
 

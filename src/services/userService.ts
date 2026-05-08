@@ -1,9 +1,10 @@
 import { useApi } from "@/composables/useApi";
-import type { IUser } from "@/interfaces";
+import type { ICreateOrganizationEmployeeForm, IUser } from "@/interfaces";
 import { clearTokens, getAccessToken, getRefreshToken, setToken } from "@/services/tokenService";
 
+const api = useApi(import.meta.env.VITE_API);
+
 export async function userService(): Promise<IUser | null> {
-    const api = useApi(import.meta.env.VITE_API);
     const token = getAccessToken()
 
     if (token) {
@@ -28,4 +29,8 @@ export async function userService(): Promise<IUser | null> {
 
         return null;
     }
+}
+
+export async function createUserService(data: ICreateOrganizationEmployeeForm) {
+    return await api.post<ICreateOrganizationEmployeeForm, IUser>("/users", data)
 }

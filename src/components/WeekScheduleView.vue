@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { DateHelper } from '@/utils/date';
-import type { IEmployee, ISchedule, IScheduleTypes } from '@/interfaces';
+import type { IOrganizationEmployee, ISchedule, IScheduleTypes } from '@/interfaces';
 
 const props = defineProps<{
     days: number,
     scheduleWeek: any
     getEntriesByDay: (day: number) => ISchedule[] | undefined
     isScheduleDialogOpen: boolean
-    employees: IEmployee[]
+    employees: IOrganizationEmployee[]
     scheduleTypes: IScheduleTypes | null
     selectDate: string
     selectStartTime: string

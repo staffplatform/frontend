@@ -12,7 +12,11 @@ interface AppInputProps {
 const isActive = ref(false);
 const model = defineModel();
 
-defineProps<AppInputProps>()
+defineProps<AppInputProps>();
+
+defineOptions({
+    inheritAttrs: false,
+});
 
 const onBlur = () => {
     isActive.value = true;
@@ -20,17 +24,32 @@ const onBlur = () => {
 </script>
 
 <template>
-    <input
-        :type="type"
-        class="input w-full"
-        v-model="model"
-        @blur="onBlur"
-        :disabled="disabled"
-        :placeholder="placeholder"
-    />
-    <div v-if="error && isActive" class="relative pb-2">
-        <span class="absolute pt-1 text-red-500">
+    <div class="app-input">
+        <input
+            class="input w-full"
+            v-model="model"
+            v-bind="$attrs"
+            @blur="onBlur"
+            :type="type"
+            :disabled="disabled"
+            :placeholder="placeholder"
+        />
+        <span v-if="error && isActive" class="app-input__error">
             {{ error }}
         </span>
     </div>
 </template>
+
+<style scoped>
+.app-input {
+    width: 100%;
+}
+
+.app-input__error {
+    display: block;
+    margin-top: 4px;
+    color: #ef4444;
+    font-size: 14px;
+    line-height: 1.35;
+}
+</style>
