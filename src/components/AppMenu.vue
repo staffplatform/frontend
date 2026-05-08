@@ -17,6 +17,7 @@ const menuLinks = computed(() => {
     if (props.isLogin) {
         return [
             { to: ERouter.PROFILE, label: ERouterName.PROFILE },
+            { to: ERouter.ORGANIZATION, label: ERouterName.ORGANIZATION },
             { to: ERouter.SCHEDULE, label: ERouterName.SCHEDULE },
         ];
     }

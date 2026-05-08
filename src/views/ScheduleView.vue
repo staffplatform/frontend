@@ -6,7 +6,7 @@ import AppDialog from '@/components/AppDialog.vue';
 import EmployeeDetailsView from '@/components/EmployeeDetailsView.vue';
 import ScheduleDialogDetail from '@/components/ScheduleDialogDetail.vue';
 import { ERouterName } from '@/enums';
-import type { IEmployee, ISchedule, IScheduleTypes, IStore } from '@/interfaces';
+import type { IOrganizationEmployee, ISchedule, IScheduleTypes, IStore } from '@/interfaces';
 import { deleteScheduleEntryService, getMonthScheduleService, getScheduleTypesService, getWeekScheduleService, updateMonthScheduleService } from '@/services/scheduleService';
 import { getCurrentStoresService } from '@/services/storesService';
 import { useScheduleStore } from '@/stores/useScheduleStore';
@@ -30,7 +30,7 @@ const stores = ref<IStore[] | null>(null)
 const scheduleTypes = ref<IScheduleTypes | null>(null)
 
 const selectedEntry = ref<ISchedule | null>(null)
-const selectedEmployee = ref<IEmployee | null>(null)
+const selectedEmployee = ref<IOrganizationEmployee | null>(null)
 const selectDay = ref<number | null>(null)
 const selectStartTime = ref(null)
 const period = ref<periodType>('month')
@@ -157,7 +157,8 @@ function showSchedule(value: number, time) {
     isScheduleCreateDialogOpen.value = !isScheduleCreateDialogOpen.value
 }
 
-function showEmployee(employee: IEmployee) {
+function showEmployee(employee: IOrganizationEmployee) {
+    console.log('employee', employee)
     selectedEmployee.value = employee
     isEmployeeDialogOpen.value = !isEmployeeDialogOpen.value
 }

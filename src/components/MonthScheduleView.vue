@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { IEmployee, ISchedule, IScheduleTypes } from '@/interfaces';
+import type { IOrganizationEmployee, ISchedule, IScheduleTypes } from '@/interfaces';
 
 const props = defineProps<{
     days: number
     getEntriesByDay: (day: number) => ISchedule[] | undefined
     isScheduleDialogOpen: boolean
-    employees: IEmployee[]
+    employees: IOrganizationEmployee[]
     scheduleTypes: IScheduleTypes | null
     selectDate: string
 }>()

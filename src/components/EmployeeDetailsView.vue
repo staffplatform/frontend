@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { IEmployee } from '@/interfaces';
+import type { IOrganizationEmployee } from '@/interfaces';
 import { computed } from 'vue';
 
 const props = defineProps<{
-    employee: IEmployee
+    employee: IOrganizationEmployee
 }>()
 
 const fullName = computed(() => `${props.employee.lastName} ${props.employee.firstName}`.trim())

@@ -8,6 +8,9 @@ import {useError} from "@/composables/useError";
 import { getAccessToken, getRefreshToken } from "@/services/tokenService";
 import ProfileView from "@/views/ProfileView.vue";
 import ScheduleView from "@/views/ScheduleView.vue";
+import OrganizationView from "@/views/OrganizationView.vue";
+import OrganizationStoresView from "@/views/OrganizationStoresView.vue";
+import OrganizationEmployeeView from "@/views/OrganizationEmployeeView.vue";
 
 const { logError } = useError()
 
@@ -41,6 +44,24 @@ const routes = [
         path: '/schedule/:mode',
         component: ScheduleView,
         name: ERouterName.SCHEDULE_MODE,
+    },
+    {
+        path: ERouter.ORGANIZATION,
+        component: OrganizationView,
+        name: ERouterName.ORGANIZATION,
+        redirect:ERouter.ORGANIZATION_STORES,
+        children: [
+            {
+                path: ERouter.ORGANIZATION_STORES,
+                component: OrganizationStoresView,
+                name: ERouterName.ORGANIZATION_STORES,
+            },
+            {
+                path: ERouter.ORGANIZATION_EMPLOYEES,
+                component: OrganizationEmployeeView,
+                name: ERouterName.ORGANIZATION_EMPLOYEES,
+            }
+        ]
     }
 ];
 

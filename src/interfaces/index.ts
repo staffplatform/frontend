@@ -3,6 +3,9 @@ export * from "./IToken";
 export * from "./IAuthResponse";
 export * from "./ISchedule";
 export * from "./IStore";
+export * from "./ICreateOrganizationStoreForm";
 export * from "./IScheduleMonth";
-export * from "./IEmployee";
+export * from "./IOrganizationEmployee";
 export * from "./IScheduleTypes";
+export * from "./IUserStore"
+export * from "./ICreateOrganizationEmployeeForm"

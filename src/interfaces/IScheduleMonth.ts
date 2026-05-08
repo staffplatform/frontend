@@ -1,4 +1,4 @@
-import type { IEmployee } from "./IEmployee";
+import type { IOrganizationEmployee } from "./IOrganizationEmployee";
 import type { ISchedule } from "./ISchedule";
 import type { IStore } from "./IStore";
 
@@ -7,6 +7,6 @@ export interface IScheduleMonth {
     month: string;
     daysInMonth: number[];
     entries: ISchedule[];
-    employees: IEmployee[];
+    employees: IOrganizationEmployee[];
     store: IStore | null;
 }
