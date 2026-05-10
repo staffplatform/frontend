@@ -1,11 +1,11 @@
 import { createApp } from "vue";
-import { createPinia } from "pinia";
+import { pinia } from "@/app/providers/store";
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
 
-import App from "./App.vue";
-import router from "./router";
-import "./assets/styles/main.css";
+import App from "./app/App.vue";
+import router from "./app/providers/router";
+import "./app/styles/main.css";
 
 const app = createApp(App)
 
@@ -24,7 +24,7 @@ const options = {
     rtl: false,
 };
 
-app.use(createPinia());
+app.use(pinia);
 app.use(router);
 app.use(Toast, options);
 app.mount('#app')
