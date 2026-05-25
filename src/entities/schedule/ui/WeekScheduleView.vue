@@ -1,23 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { DateHelper } from '@/shared/lib/date';
-import type { IOrganizationEmployee } from '@/entities/employee/model/types';
-import type { ISchedule, IScheduleTypes } from '@/entities/schedule/model/types';
+import type { ISchedule, IScheduleWeek } from '@/entities/schedule/model/types';
 
 const props = defineProps<{
-    days: number,
-    scheduleWeek: any
-    getEntriesByDay: (day: number) => ISchedule[] | undefined
-    isScheduleDialogOpen: boolean
-    employees: IOrganizationEmployee[]
-    scheduleTypes: IScheduleTypes | null
-    selectDate: string
-    selectStartTime: string
+    scheduleWeek: IScheduleWeek
 }>()
 
 const emit = defineEmits<{
-    "save-entry": [payload: any]
-    "show-info": [value: any]
+    "show-info": [day: number, time: number]
     "show-entry-info": [entry: ISchedule]
     "close-dialog": []
 }>()
@@ -42,14 +33,14 @@ const weekDays = computed(() => {
     return days
 })
 
-function handleCellClick(day, time) {
+function handleCellClick(day: Date, time: number) {
     const date = new Date(day)
     date.setHours(time)
 
     emit('show-info', date.getDate(), time)
 }
 
-function getShiftForCell(day, hourValue) {
+function getShiftForCell(day: Date, hourValue: number) {
     const date = new Date(day)
     date.setHours(hourValue)
 
@@ -83,7 +74,7 @@ function handleShiftClick(shift: ISchedule) {
         <div class="week-header">
             <p
                 v-for="day in weekDays"
-                :key="day"
+                :key="day.toISOString()"
                 class="week-header__day"
             >
                 {{ formatDay(day) }}

@@ -8,6 +8,7 @@ import { useValidation } from "@/shared/lib/validation/useValidation";
 import { useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
 import { registerService } from "@/features/register/api/registerService";
+import { isApiError } from "@/shared/api/lib/isApiError";
 
 const isLoading = ref<boolean>(false);
 const router = useRouter();
@@ -55,7 +56,7 @@ const submitForm = async () => {
         await router.push({ path: ERouter.SCHEDULE });
         toast.success("Вы успешно зарегистрировались!");
     } catch (error) {
-        if (error instanceof Error) {
+        if (isApiError(error)) {
             toast.error(error.data.message);
         }
     } finally {

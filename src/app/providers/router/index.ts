@@ -80,7 +80,9 @@ router.beforeEach(async (to) => {
                 store.setUser(me);
             }
         } catch (error) {
-            logError(error)
+            if (error instanceof Error) { 
+                logError(error)
+            }
         }
     }
 

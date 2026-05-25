@@ -8,6 +8,7 @@ import AppButton from "@/shared/ui/button/AppButton.vue";
 import { ERouter } from "@/shared/config/router/ERouter";
 import { authService } from "@/features/auth/api/authService";
 import { useValidation } from "@/shared/lib/validation/useValidation";
+import type { IApiError } from "@/shared/api/model/types";
 
 const isLoading = ref<boolean>(false);
 const router = useRouter();
@@ -41,8 +42,10 @@ const submitForm = async () => {
         await router.push({ path: ERouter.SCHEDULE });
         toast.success("Вы успешно авторизовались!");
     } catch (error) {
-        if (error instanceof Error) {
-            toast.error(error.data.message);
+        if (error as Error) {
+            const apiError = error as IApiError
+
+            toast.error(apiError.data.message);
         }
     } finally {
         isLoading.value = false;

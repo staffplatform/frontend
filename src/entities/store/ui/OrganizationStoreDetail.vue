@@ -8,14 +8,15 @@ import AppInput from '@/shared/ui/input/AppInput.vue';
 import AppButton from '@/shared/ui/button/AppButton.vue';
 import { DateHelper } from '@/shared/lib/date';
 import AppInfoBlock from '@/shared/ui/info-block/AppInfoBlock.vue';
+import type { RolesTypes } from '@/shared/config/roles';
 
 const isOpenSettings = ref(false)
 
 const props = defineProps<{
     isEditStore: boolean
-    editableStore: IStore | null
+    editableStore: IStore
     employees: IOrganizationEmployee[] | null
-    roles: any
+    roles: Record<RolesTypes, string>
 }>()
 
 const emit = defineEmits<{
@@ -26,7 +27,7 @@ const emit = defineEmits<{
 }>()
 
 const activeFromModel = computed({
-    get: () => DateHelper.YYYYMMDD(props.editableStore?.activeFrom),
+    get: () => DateHelper.YYYYMMDD(props.editableStore.activeFrom) ?? "",
     set: (value) => {
         if (props.editableStore) {
             props.editableStore.activeFrom = value
@@ -34,7 +35,10 @@ const activeFromModel = computed({
     }
 })
 
-function getEmployeeRole(role: string) {
+function getEmployeeRole(role: RolesTypes) {
+    if (!role) {
+        return
+    }
     return props.roles[role]
 }
 

@@ -10,4 +10,4 @@ const INPUT_TYPES = {
 } as const;
 
 export type InputType =
-    (typeof INPUT_TYPES)[keyof typeof INPUT_TYPES];
+    typeof INPUT_TYPES[keyof typeof INPUT_TYPES];

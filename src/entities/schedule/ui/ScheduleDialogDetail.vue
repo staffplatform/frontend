@@ -14,21 +14,21 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     delete: [{ userId: string; date: string }]
-    edit: any
+    edit: [ISchedule]
 }>()
 
 function handleSettings() {
     isOpenSettings.value = !isOpenSettings.value
 }
 
-function deleteForm(entry) {
+function deleteForm(entry: ISchedule) {
     emit('delete', {
         userId: entry.userId,
         date: entry.date
     })
 }
 
-function editForm(entry) {
+function editForm(entry: ISchedule) {
     emit('edit', entry)
 }
 

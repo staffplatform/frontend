@@ -1,4 +1,4 @@
-import { useApi } from "@/shared/api/useApi";
+import { useApi } from "@/shared/api/lib/useApi";
 import type { IAuthResponse } from "@/features/auth/model/types";
 import { setToken } from "@/entities/session/api/tokenService";
 import { userService } from "@/entities/user/api/userService";

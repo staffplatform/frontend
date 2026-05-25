@@ -1,8 +1,10 @@
+import type { RolesTypes } from "@/shared/config/roles";
+
 export interface IUserStore {
     storeId: string;
     storeName: string;
     storeCity: string;
-    role: "OWNER" | "ADMIN" | "EMPLOYEE";
+    role: RolesTypes;
     activeFrom: string;
     assignedAt: string;
 }

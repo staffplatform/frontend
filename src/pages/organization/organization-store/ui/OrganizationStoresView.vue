@@ -22,6 +22,7 @@ import {
     getEmployeesStoreService,
 } from "@/entities/store/api/storesService";
 import { onMounted, ref } from "vue";
+import type { RolesTypes } from "@/shared/config/roles";
 
 const searchStore = ref("");
 const isStoresLoading = ref(false);
@@ -37,9 +38,7 @@ const editableStore = ref<IStore | null>(null);
 
 const employees = ref<IOrganizationEmployee[] | null>(null);
 
-type rolesType = "OWNER" | "ADMIN" | "EMPLOYEE";
-
-const roles = ref<Record<rolesType, string>>({
+const roles = ref<Record<RolesTypes, string>>({
     OWNER: "Владелец",
     ADMIN: "Администратор",
     EMPLOYEE: "Сотрудник",
@@ -188,7 +187,7 @@ onMounted(async () => {
             </AppCollectionPanel>
 
             <OrganizationStoreDetail
-                v-if="!isCreateStore"
+                v-if="!isCreateStore && editableStore"
                 :isEditStore
                 :editableStore
                 :employees

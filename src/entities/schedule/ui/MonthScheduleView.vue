@@ -1,28 +1,22 @@
 <script setup lang="ts">
-import type { IOrganizationEmployee } from '@/entities/employee/model/types';
-import type { ISchedule, IScheduleTypes } from '@/entities/schedule/model/types';
+import type { ISchedule } from '@/entities/schedule/model/types';
 
 const props = defineProps<{
     days: number
     getEntriesByDay: (day: number) => ISchedule[] | undefined
-    isScheduleDialogOpen: boolean
-    employees: IOrganizationEmployee[]
-    scheduleTypes: IScheduleTypes | null
-    selectDate: string
 }>()
 
 const emit = defineEmits<{
-    "save-entry": [payload: any]
-    "show-info": [value: any]
+    "show-info": [day: number]
     "show-entry-info": [entry: ISchedule]
     "close-dialog": []
 }>()
 
-function showInfoDay(day) {
+function showInfoDay(day: number) {
     emit('show-info', day)
 }
 
-function showEntryInfo(entry) {
+function showEntryInfo(entry: ISchedule) {
     emit('show-entry-info', entry)
 }
 </script>

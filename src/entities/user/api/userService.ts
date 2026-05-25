@@ -1,4 +1,4 @@
-import { useApi } from "@/shared/api/useApi";
+import { useApi } from "@/shared/api/lib/useApi";
 import type { IUser } from "@/entities/user/model/types";
 import type { ICreateOrganizationEmployeeForm } from "@/features/create-organization-employee/model/types";
 import { clearTokens, getAccessToken, getRefreshToken, setToken } from "@/entities/session/api/tokenService";
