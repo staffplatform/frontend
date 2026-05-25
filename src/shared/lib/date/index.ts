@@ -18,7 +18,7 @@ export const DateHelper = {
         const date = toDate(value);
         return date ? format(date, "dd.MM.yyyy") : "";
     },
-    FullDate(year, month, day) {
+    FullDate(year: number, month: number, day: number) {
         return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
     }
 }

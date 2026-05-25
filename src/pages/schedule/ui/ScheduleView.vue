@@ -7,9 +7,9 @@ import EmployeeDetailsView from '@/entities/employee/ui/EmployeeDetailsView.vue'
 import ScheduleDialogDetail from '@/entities/schedule/ui/ScheduleDialogDetail.vue';
 import { ERouterName } from '@/shared/config/router/ERouterName';
 import type { IOrganizationEmployee } from '@/entities/employee/model/types';
-import type { ISchedule, IScheduleTypes } from '@/entities/schedule/model/types';
+import type { ISchedule, IScheduleForm, IScheduleMonth, IScheduleTypes, IScheduleWeek } from '@/entities/schedule/model/types';
 import type { IStore } from '@/entities/store/model/types';
-import { deleteScheduleEntryService, getMonthScheduleService, getScheduleTypesService, getWeekScheduleService, updateMonthScheduleService } from '@/entities/schedule/api/scheduleService';
+import { deleteScheduleEntryService, getMonthScheduleService, getScheduleTypesService, getWeekScheduleService, updateMonthScheduleService, updateWeekScheduleService } from '@/entities/schedule/api/scheduleService';
 import { getCurrentStoresService } from '@/entities/store/api/storesService';
 import { useScheduleStore } from '@/entities/schedule/model/store';
 import { DateHelper } from '@/shared/lib/date';
@@ -20,8 +20,7 @@ import WeekScheduleView from '@/entities/schedule/ui/WeekScheduleView.vue';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import ScheduleDialogForm from '@/features/create-organization-schedule/ui/ScheduleDialogForm.vue';
-
-type periodType = 'month' | 'week'
+import { SCHEDULE_PERIOD_TYPES, type SchedulePeriodType } from '@/entities/schedule/model/constants';
 
 const router = useRouter()
 const route = useRoute()
@@ -34,8 +33,8 @@ const scheduleTypes = ref<IScheduleTypes | null>(null)
 const selectedEntry = ref<ISchedule | null>(null)
 const selectedEmployee = ref<IOrganizationEmployee | null>(null)
 const selectDay = ref<number | null>(null)
-const selectStartTime = ref(null)
-const period = ref<periodType>('month')
+const selectStartTime = ref('')
+const period = ref<SchedulePeriodType>(SCHEDULE_PERIOD_TYPES.MONTH)
 
 const isStoreDialogOpen = ref<boolean>(false)
 const isEmployeeDialogOpen = ref<boolean>(false)
@@ -45,13 +44,13 @@ const isScheduleDetailDialogOpen = ref(false)
 const isScheduleEditDialogOpen = ref(false)
 
 const currentPeriodLabel = computed(() => {
-    const schedule = scheduleStore.schedule
+    const schedule: IScheduleMonth | IScheduleWeek | null = scheduleStore.schedule
 
     if(!schedule) {
         return ''
     }
 
-    if (schedule.weekStart && schedule.weekEnd) {
+    if ("weekStart" in schedule && "weekEnd" in schedule) {
         const weekStart = schedule.weekStart
         const weekEnd = schedule.weekEnd
         return `${format(weekStart, 'd MMMM', { locale: ru })} - ${format(weekEnd, 'd MMMM', { locale: ru })}`
@@ -62,6 +61,16 @@ const currentPeriodLabel = computed(() => {
         const month = format(date, 'LLLL', {locale: ru})
         return `${month.charAt(0).toUpperCase() + month.slice(1)} ${schedule.year}`
     }
+})
+
+const createSelectedDate = computed(() => {
+    const store = scheduleStore.schedule
+
+    if (!store || !("year" in store) || !("month" in store)) {
+        return ''
+    }
+
+    return DateHelper.FullDate(Number(store.year), Number(store.month), Number(selectDay.value))
 })
 
 function getScheduleQueryParams() {
@@ -103,7 +112,7 @@ async function loadMonth() {
         router.push({
             name: ERouterName.SCHEDULE_MODE,
             params: {
-                mode: 'month',
+                mode: SCHEDULE_PERIOD_TYPES.MONTH,
             },
             query: {
                 storeId: params.storeId,
@@ -121,6 +130,10 @@ async function loadWeek() {
 
     scheduleStore.setSchedule(null)
 
+    if (!params.storeId || !params.week) {
+        return
+    }
+
     try {
         const schedule = await getWeekScheduleService({
             storeId: params.storeId,
@@ -131,7 +144,7 @@ async function loadWeek() {
         router.push({
             name: ERouterName.SCHEDULE_MODE,
             params: {
-                mode: 'week',
+                mode: SCHEDULE_PERIOD_TYPES.WEEK,
             },
             query: {
                 storeId: params.storeId,
@@ -147,10 +160,12 @@ async function showStore() {
     isStoreDialogOpen.value = !isStoreDialogOpen.value
 }
 
-function showSchedule(value: number, time) {
+function showSchedule(value: number, time?: number) {
     selectDay.value = value
 
-    if (time < 10) {
+    if (time === undefined) {
+        selectStartTime.value = ''
+    } else if (time < 10) {
         selectStartTime.value = `0${time}:00`
     } else {
         selectStartTime.value = `${time}:00`
@@ -160,7 +175,6 @@ function showSchedule(value: number, time) {
 }
 
 function showEmployee(employee: IOrganizationEmployee) {
-    console.log('employee', employee)
     selectedEmployee.value = employee
     isEmployeeDialogOpen.value = !isEmployeeDialogOpen.value
 }
@@ -171,7 +185,7 @@ async function selectStore(store: IStore) {
     router.push({
         name: ERouterName.SCHEDULE_MODE,
         params: {
-            mode: 'month',
+            mode: SCHEDULE_PERIOD_TYPES.MONTH,
         },
         query: {
             storeId: store.id,
@@ -184,12 +198,14 @@ async function selectStore(store: IStore) {
 }
 
 function getEntriesByDay(day: number) {
-    if (!scheduleStore.schedule) {
+    const schedule = scheduleStore.schedule
+
+    if (!schedule || !('year' in schedule) || !('month' in schedule)) {
         return
     }
-    const fullDate = DateHelper.FullDate(scheduleStore.schedule.year, scheduleStore.schedule.month, day)
+    const fullDate = DateHelper.FullDate(Number(schedule.year), Number(schedule.month), day)
     
-    return scheduleStore.schedule.entries
+    return schedule.entries
         .filter((entry: ISchedule) => entry.date === fullDate)
         .sort((a: ISchedule, b: ISchedule) => (a.startTime ?? '').localeCompare(b.startTime ?? ''))
 }
@@ -199,49 +215,60 @@ function showEntryInfo(entry: ISchedule) {
     isScheduleDetailDialogOpen.value = !isScheduleDetailDialogOpen.value
 }
 
-async function handleScheduleSubmit(payload) {
+async function handleScheduleSubmit(payload: IScheduleForm) {
     const schedule = scheduleStore.schedule
 
-    if (!schedule) {
+    if (!schedule || !schedule.store?.id) {
         return
     }
 
     try {
-        if (route.params.mode === 'month') {
-            const updateSchedule = await updateMonthScheduleService({
+        if (route.params.mode === SCHEDULE_PERIOD_TYPES.MONTH && 'year' in schedule && 'month' in schedule) {
+            const updatePayload = {
                 storeId: schedule.store.id,
                 year: schedule.year,
                 month: schedule.month,
                 entries: [
                     payload
                 ]
-            })
+            }
+            const updateSchedule: IScheduleMonth = await updateMonthScheduleService(updatePayload)
             scheduleStore.setSchedule(updateSchedule)
-        } else {
-            const updateSchedule = await updateWeekScheduleService({
+        } else if (route.params.mode === SCHEDULE_PERIOD_TYPES.WEEK && 'week' in schedule) {
+            const updatePayload = {
                 storeId: schedule.store.id,
                 week: schedule.week,
                 entries: [
                     payload
                 ]
-            })
+            }
+            const updateSchedule: IScheduleWeek = await updateWeekScheduleService(updatePayload)
             scheduleStore.setSchedule(updateSchedule)
         }
         isScheduleCreateDialogOpen.value = false
         isScheduleEditDialogOpen.value = false
     } catch(error) {
         if (error instanceof Error) {
-            toast.error(error.data.message);
+            toast.error(error.message)
         }
     }
 }
 
-async function handleScheduleDelete(payload) {
-    payload.storeId = scheduleStore.schedule.store.id
+async function handleScheduleDelete(payload: {userId: string, date: string}) {
+    const schedule = scheduleStore.schedule
+
+    if (!schedule || !schedule.store) {
+        return
+    }
+
     try {
-        await deleteScheduleEntryService(payload)
+        await deleteScheduleEntryService({
+            storeId: schedule.store.id,
+            userId: payload.userId,
+            date: payload.date
+        })
         
-        if (route.params.mode === 'month') {
+        if (route.params.mode === SCHEDULE_PERIOD_TYPES.MONTH) {
             await loadMonth()
         } else {
             await loadWeek()
@@ -250,12 +277,12 @@ async function handleScheduleDelete(payload) {
         isScheduleDetailDialogOpen.value = false
     } catch(error) {
         if (error instanceof Error) {
-            toast.error(error.data.message);
+            toast.error(error.message)
         }
     }
 }
 
-function handleScheduleEdit(payload) {
+function handleScheduleEdit(payload: ISchedule) {
     selectedEntry.value = payload
     isScheduleEditDialogOpen.value = !isScheduleEditDialogOpen.value
     isScheduleDetailDialogOpen.value = false
@@ -268,7 +295,7 @@ async function handlePeriodPrev() {
         return
     }
 
-    if (route.params.mode === 'month') {
+    if (route.params.mode === SCHEDULE_PERIOD_TYPES.MONTH) {
         if (!params.year || !params.month) {
             return
         }
@@ -277,16 +304,16 @@ async function handlePeriodPrev() {
         const prevMonth = Number(params.month) - 1
 
         if (prevMonth < 1) {
-            params.year = prevYear
-            params.month = 12
+            params.year = String(prevYear)
+            params.month = String(12)
         } else {
-            params.month = prevMonth
+            params.month = String(prevMonth)
         }
 
         router.push({
             name: ERouterName.SCHEDULE_MODE,
             params: {
-                mode: 'month',
+                mode: SCHEDULE_PERIOD_TYPES.MONTH,
             },
             query: {
                 storeId: params.storeId,
@@ -296,7 +323,7 @@ async function handlePeriodPrev() {
         })
     }
 
-    if (route.params.mode === 'week') {
+    if (route.params.mode === SCHEDULE_PERIOD_TYPES.WEEK) {
         if(!params.week) {
             return
         }
@@ -309,7 +336,7 @@ async function handlePeriodPrev() {
         router.push({
             name: ERouterName.SCHEDULE_MODE,
             params: {
-                mode: 'week',
+                mode: SCHEDULE_PERIOD_TYPES.WEEK,
             },
             query: {
                 storeId: params.storeId,
@@ -326,7 +353,7 @@ async function handlePeriodNext() {
         return
     }
 
-    if(route.params.mode === 'month') {
+    if(route.params.mode === SCHEDULE_PERIOD_TYPES.MONTH) {
         if(!params.year || !params.month) {
             return 
         }
@@ -335,16 +362,16 @@ async function handlePeriodNext() {
         const nextMonth = Number(params.month) + 1
 
         if (nextMonth > 12) {
-            params.year = nextYear
-            params.month = 1
+            params.year = String(nextYear)
+            params.month = String(1)
         } else {
-            params.month = nextMonth
+            params.month = String(nextMonth)
         }
 
         router.push({
             name: ERouterName.SCHEDULE_MODE,
             params: {
-                mode: 'month',
+                mode: SCHEDULE_PERIOD_TYPES.MONTH,
             },
             query: {
                 storeId: params.storeId,
@@ -354,7 +381,7 @@ async function handlePeriodNext() {
         })
     }
 
-    if (route.params.mode === 'week') {
+    if (route.params.mode === SCHEDULE_PERIOD_TYPES.WEEK) {
         if(!params.week) {
             return
         }
@@ -367,7 +394,7 @@ async function handlePeriodNext() {
         router.push({
             name: ERouterName.SCHEDULE_MODE,
             params: {
-                mode: 'week',
+                mode: SCHEDULE_PERIOD_TYPES.WEEK,
             },
             query: {
                 storeId: params.storeId,
@@ -377,12 +404,12 @@ async function handlePeriodNext() {
     }
 }
 
-async function setPeriod(payload: periodType) {
+async function setPeriod(payload: SchedulePeriodType) {
     const params = getScheduleQueryParams()
     const { year, month, day } = getCurrentPeriod()
     period.value = payload
 
-    if(payload === 'month') {
+    if(payload === SCHEDULE_PERIOD_TYPES.MONTH) {
         if (params.week) {
             const newParams = new Date(params.week)
             const paramsYear = newParams.getFullYear()
@@ -391,7 +418,7 @@ async function setPeriod(payload: periodType) {
             router.push({
                 name: ERouterName.SCHEDULE_MODE,
                 params: {
-                    mode: 'month',
+                    mode: SCHEDULE_PERIOD_TYPES.MONTH,
                 },
                 query: {
                     storeId: params.storeId,
@@ -403,7 +430,7 @@ async function setPeriod(payload: periodType) {
             router.push({
                 name: ERouterName.SCHEDULE_MODE,
                 params: {
-                    mode: 'month',
+                    mode: SCHEDULE_PERIOD_TYPES.MONTH,
                 },
                 query: {
                     storeId: params.storeId,
@@ -416,27 +443,20 @@ async function setPeriod(payload: periodType) {
         router.push({
             name: ERouterName.SCHEDULE_MODE,
             params: {
-                mode: 'week',
+                mode: SCHEDULE_PERIOD_TYPES.WEEK,
             },
             query: {
                 storeId: params.storeId,
-                week: DateHelper.FullDate(params.year, params.month, day),
+                week: DateHelper.FullDate(Number(params.year), Number(params.month), day),
             }
         })
     }
 }
 
-function converterCurrentDate(fullDate, day) {
-    const newDate = new Date(fullDate)
-    newDate.setDate(day)
-
-    return newDate
-}
-
 watch(
     [() => route.query.storeId, () => route.query.year, () => route.query.month, () => route.query.week, () => route.params.mode]
     , async () => {
-        if(route.params.mode === 'month') {
+        if(route.params.mode === SCHEDULE_PERIOD_TYPES.MONTH) {
             await loadMonth()
         } else {
             await loadWeek()
@@ -468,13 +488,13 @@ onMounted(async () => {
             </div>
             <div class="period-buttons">
                 <AppButton
-                    @click="setPeriod('month')"
+                    @click="setPeriod(SCHEDULE_PERIOD_TYPES.MONTH)"
                     variant="primary"
                 >
                     Месяц
                 </AppButton>
                 <AppButton
-                    @click="setPeriod('week')"
+                    @click="setPeriod(SCHEDULE_PERIOD_TYPES.WEEK)"
                     variant="primary"
                 >
                     Неделя
@@ -493,7 +513,7 @@ onMounted(async () => {
                         class="schedule-card" 
                         v-for="employee in scheduleStore.schedule.employees" 
                         @click="showEmployee(employee)"
-                        :key="employee.id"
+                        :key="employee.userId"
                     >
                         <img class="schedule-card__image" src="https://media.istockphoto.com/id/459008937/ru/%D1%84%D0%BE%D1%82%D0%BE/lego-%D0%B4%D0%B8%D1%81%D0%BF%D0%BB%D0%B5%D0%B9-%D1%80%D0%B8%D1%81%D1%83%D0%BD%D0%BE%D0%BA.jpg?s=612x612&w=0&k=20&c=oPCV_hPEDoDuwU_RQoMpJxVTC2fem9-P3eWcEZ3gp50=" alt="Аватар">
                         <div class="schedule-card__info">
@@ -506,44 +526,31 @@ onMounted(async () => {
                         </div>
                     </div>
                 </div>
-                <AppDialog v-if="isEmployeeDialogOpen" @close="isEmployeeDialogOpen = false">
+                <AppDialog v-if="isEmployeeDialogOpen && selectedEmployee" @close="isEmployeeDialogOpen = false">
                     <EmployeeDetailsView
                         :employee="selectedEmployee"
                     />
                 </AppDialog>
             </div>
-            <template v-if="route.params.mode === 'month'">
+            <template v-if="scheduleStore.schedule && 'month' in scheduleStore.schedule">
                 <MonthScheduleView
                     :days="scheduleStore.schedule.daysInMonth"
-                    :isScheduleCreateDialogOpen="isScheduleCreateDialogOpen"
-                    :employees="scheduleStore.schedule.employees"
-                    :scheduleTypes="scheduleTypes"
                     :getEntriesByDay="getEntriesByDay"
-                    :selectDate="DateHelper.FullDate(scheduleStore.schedule.year, scheduleStore.schedule.month, selectDay)"
-                    @save-entry="handleScheduleSubmit"
                     @close-dialog="isScheduleCreateDialogOpen = false"
                     @show-info="showSchedule"
                     @show-entry-info="showEntryInfo"
                 />
             </template>
-            <template v-else>
+            <template v-else-if="scheduleStore.schedule && 'week' in scheduleStore.schedule">
                 <WeekScheduleView
-                    :days="scheduleStore.schedule.daysInMonth"
-                    :isScheduleCreateDialogOpen="isScheduleCreateDialogOpen"
-                    :employees="scheduleStore.schedule.employees"
-                    :selectedEntry="selectedEntry"
-                    :scheduleTypes="scheduleTypes"
                     :schedule-week="scheduleStore.schedule"
-                    :selectDate="DateHelper.YYYYMMDD(converterCurrentDate(scheduleStore.schedule.week, selectDay))"
-                    :selectStartTime="selectStartTime"
-                    @save-entry="handleScheduleSubmit"
                     @close-dialog="isScheduleCreateDialogOpen = false"
                     @show-info="showSchedule"
                     @show-entry-info="showEntryInfo"
                 />
             </template>
         </div>
-        <AppDialog v-if="isScheduleDetailDialogOpen" @close="isScheduleDetailDialogOpen = false">
+        <AppDialog v-if="isScheduleDetailDialogOpen && selectedEntry" @close="isScheduleDetailDialogOpen = false">
             <ScheduleDialogDetail 
                 :selectedEntry="selectedEntry"
                 :employees="scheduleStore.schedule.employees"
@@ -555,35 +562,25 @@ onMounted(async () => {
         <AppDialog v-if="isScheduleCreateDialogOpen" @close="isScheduleCreateDialogOpen = false">
             <ScheduleDialogForm
                 mode="create"
-                :days="scheduleStore.schedule.daysInMonth"
-                :isScheduleCreateDialogOpen="isScheduleCreateDialogOpen"
                 :employees="scheduleStore.schedule.employees"
                 :scheduleTypes="scheduleTypes"
-                :schedule-week="scheduleStore.schedule"
-                :selectDate="DateHelper.FullDate(scheduleStore.schedule.year, scheduleStore.schedule.month, selectDay)"
+                :selectDate="createSelectedDate"
                 :selectStartTime="selectStartTime"
                 @save-entry="handleScheduleSubmit"
-                @close-dialog="isScheduleCreateDialogOpen = false"
-                @show-info="showSchedule"
-                @show-entry-info="showEntryInfo"
+                @close="isScheduleCreateDialogOpen = false"
             >
             </ScheduleDialogForm>
         </AppDialog>
-        <AppDialog v-if="isScheduleEditDialogOpen" @close="isScheduleEditDialogOpen = false">
+        <AppDialog v-if="isScheduleEditDialogOpen && selectedEntry" @close="isScheduleEditDialogOpen = false">
             <ScheduleDialogForm
                 mode="edit"
                 :selectedEntry="selectedEntry"
-                :days="scheduleStore.schedule.daysInMonth"
-                :isScheduleCreateDialogOpen="isScheduleCreateDialogOpen"
                 :employees="scheduleStore.schedule.employees"
                 :scheduleTypes="scheduleTypes"
-                :schedule-week="scheduleStore.schedule"
-                :selectDate="DateHelper.YYYYMMDD(converterCurrentDate(scheduleStore.schedule.week, selectDay))"
+                :selectDate="selectedEntry.date"
                 :selectStartTime="selectStartTime"
                 @save-entry="handleScheduleSubmit"
-                @close-dialog="isScheduleCreateDialogOpen = false"
-                @show-info="showSchedule"
-                @show-entry-info="showEntryInfo"
+                @close="isScheduleCreateDialogOpen = false"
             >
             </ScheduleDialogForm>
         </AppDialog>
@@ -701,6 +698,8 @@ onMounted(async () => {
     display: flex;
     flex-direction: column;
     gap: 5px;
+    max-height: 450px;
+    overflow-y: scroll;
 }
 
 .card-store {

@@ -1,4 +1,4 @@
-import { useApi } from "@/shared/api/useApi";
+import { useApi } from "@/shared/api/lib/useApi";
 import type { IUser } from "@/entities/user/model/types";
 
 export async function profileService(data: Pick<IUser, "firstName" | "lastName" | "birthDate">) {

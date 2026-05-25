@@ -1,4 +1,4 @@
-import { useApi } from "@/shared/api/useApi";
+import { useApi } from "@/shared/api/lib/useApi";
 import { userService } from "@/entities/user/api/userService";
 import { useUserStore } from "@/entities/user/model/store";
 import { setToken } from "@/entities/session/api/tokenService";

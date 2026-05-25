@@ -1,11 +1,7 @@
 import { EMethod } from "@/shared/config/method/EMethod";
 import { EStatus } from "@/shared/config/status/EStatus";
 import Cookies from "js-cookie";
-
-interface IApiError extends Error {
-    status?: number;
-    data?: { message?: string };
-}
+import type { IApiError } from "../model/types";
 
 export function useApi(baseUrl: string) {
     async function request<T, R>(
@@ -34,13 +30,13 @@ export function useApi(baseUrl: string) {
                 Cookies.remove("accessToken")
                 Cookies.remove("refreshToken")
             }
-            const error: IApiError = new Error();
+            const error = new Error() as IApiError;
             error.status = response.status;
             error.data = await response.json();
             throw error;
         }
         if (response.status === 204) {
-            return 
+            return undefined as R
         }
 
         return await response.json();
@@ -58,8 +54,8 @@ export function useApi(baseUrl: string) {
         return request(EMethod.PUT, url, body);
     }
 
-    function del<R>(url: string, options?): Promise<R> {
-        return request(EMethod.DELETE, url, options);
+    function del<R>(url: string): Promise<R> {
+        return request(EMethod.DELETE, url);
     }
 
     function patch<T, R>(url: string, body: T): Promise<R>  {

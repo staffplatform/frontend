@@ -9,6 +9,7 @@ import { profileService } from "@/entities/user/api/profileService";
 import { useToast } from "vue-toastification";
 import { DateHelper } from "@/shared/lib/date";
 import type { IUser } from "@/entities/user/model/types";
+import { isApiError } from "@/shared/api/lib/isApiError";
 
 const toast = useToast()
 const { user, setUser } = useUserStore();
@@ -37,7 +38,7 @@ async function saveProfile() {
         localUser.value = {...data}
         isEdit.value = false;
     } catch (error) {
-        if (error instanceof Error) {
+        if (isApiError(error)) {
             toast.error(error.data.message);
         }
     }

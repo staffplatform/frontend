@@ -1,10 +1,12 @@
+import type { IApiError } from "@/shared/api/model/types";
 import { EStatus } from "@/shared/config/status/EStatus";
 import {useToast} from "vue-toastification";
 
 const toast = useToast()
 
 export function useError() {
-    function logError(error, show: boolean = false) {
+    function logError(error: Error, show: boolean = false) {
+        console.log('error', error)
         let errorMessage: string = ''
 
         if (error instanceof Error) {
@@ -22,7 +24,7 @@ export function useError() {
         }
     }
 
-    function handleHttpError(error, show: boolean = false) {
+    function handleHttpError(error: IApiError, show: boolean = false) {
         let errorMessage: string = ''
 
         switch (error.status) {

@@ -1,4 +1,4 @@
-import { useApi } from "@/shared/api/useApi";
+import { useApi } from "@/shared/api/lib/useApi";
 import type { IOrganizationEmployee } from "@/entities/employee/model/types";
 import type { IStore } from "@/entities/store/model/types";
 import type { ICreateOrganizationStoreForm } from "@/features/create-organization-store/model/types";

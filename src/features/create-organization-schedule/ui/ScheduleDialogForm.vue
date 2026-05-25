@@ -2,7 +2,7 @@
 import AppButton from '@/shared/ui/button/AppButton.vue';
 import AppInput from '@/shared/ui/input/AppInput.vue';
 import type { IOrganizationEmployee } from '@/entities/employee/model/types';
-import type { IScheduleTypes } from '@/entities/schedule/model/types';
+import type { ISchedule, IScheduleTypes } from '@/entities/schedule/model/types';
 import { ref, watch } from 'vue';
 
 interface ScheduleEntryFormPayload {
@@ -16,10 +16,10 @@ interface ScheduleEntryFormPayload {
 
 const props = defineProps<{
     employees: IOrganizationEmployee[]
-    scheduleTypes: IScheduleTypes
+    scheduleTypes: IScheduleTypes | null
     selectDate: string
     selectStartTime: string
-    selectedEntry: any
+    selectedEntry?: ISchedule
     mode: string
 }>()
 
@@ -39,7 +39,8 @@ const form = ref<ScheduleEntryFormPayload>({
 });
 
 function submitForm() {
-    emit('save-entry', { ...form.value });
+    const payload = { ...form.value };
+    emit('save-entry', payload);
 }
 
 watch(() => [props.selectedEntry, props.mode], () => {
@@ -109,7 +110,7 @@ watch(() => [props.selectedEntry, props.mode], () => {
                 <span>Тип смены</span>
                 <select class="schedule-form-card__select" v-model="form.type">
                     <option
-                        v-for="type in props.scheduleTypes.entryTypes"
+                        v-for="type in props.scheduleTypes?.entryTypes ?? []"
                         :key="type.value"
                         :value="type.value"
                     >

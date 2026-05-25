@@ -22,7 +22,7 @@ const emit = defineEmits<{
 
 const scheduleName = computed(() => {
     if (scheduleStore.schedule?.store?.name) {
-        return `${route.name}: ${scheduleStore.schedule.store.name}`
+        return `${String(route.name)}: ${scheduleStore.schedule.store.name}`
     }
 
     return route.name
