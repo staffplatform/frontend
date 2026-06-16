@@ -38,12 +38,6 @@ const editableStore = ref<IStore | null>(null);
 
 const employees = ref<IOrganizationEmployee[] | null>(null);
 
-const roles = ref<Record<RolesTypes, string>>({
-    OWNER: "Владелец",
-    ADMIN: "Администратор",
-    EMPLOYEE: "Сотрудник",
-});
-
 function toggleOrganizationStore() {
     isCreateStore.value = !isCreateStore.value;
 }
@@ -191,7 +185,6 @@ onMounted(async () => {
                 :isEditStore
                 :editableStore
                 :employees
-                :roles
                 @edit="onEditOrganizationStore"
                 @save-store="onEditStore(editableStore)"
                 @cancel-store="onCancelStore(currentStore)"

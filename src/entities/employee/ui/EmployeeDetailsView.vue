@@ -7,6 +7,32 @@ const props = defineProps<{
 }>()
 
 const fullName = computed(() => `${props.employee.lastName} ${props.employee.firstName}`.trim())
+
+const employeeDialogInfo: Array<{
+    label: string
+    type: keyof IOrganizationEmployee
+}> = [
+    {
+        label: "ID сотрудника",
+        type: "userId",
+    },
+    {
+        label: "Email",
+        type: "email",
+    },
+    {
+        label: "Имя",
+        type: "firstName",
+    },
+    {
+        label: "Фамилия",
+        type: "lastName",
+    },
+    {
+        label: "Должность",
+        type: "jobTitle",
+    }
+]
 </script>
 <template>
     <div class="employee-dialog-info">
@@ -24,28 +50,11 @@ const fullName = computed(() => `${props.employee.lastName} ${props.employee.fir
         </div>
 
         <div class="employee-dialog-info__grid">
-            <div class="employee-dialog-info__note">
-                <span class="employee-dialog-info__label">ID сотрудника</span>
-                <p class="employee-dialog-info__note-text">{{ employee.userId }}</p>
-            </div>
-            <div class="employee-dialog-info__item">
-                <span class="employee-dialog-info__label">Email</span>
-                <p class="employee-dialog-info__value">{{ employee.email }}</p>
-            </div>
-            <div class="employee-dialog-info__item">
-                <span class="employee-dialog-info__label">Имя</span>
-                <p class="employee-dialog-info__value">{{ employee.firstName }}</p>
-            </div>
-            <div class="employee-dialog-info__item">
-                <span class="employee-dialog-info__label">Фамилия</span>
-                <p class="employee-dialog-info__value">{{ employee.lastName }}</p>
-            </div>
-            <div class="employee-dialog-info__item">
-                <span class="employee-dialog-info__label">Должность</span>
-                <p class="employee-dialog-info__value">{{ employee.jobTitle }}</p>
+            <div class="employee-dialog-info__note" v-for="employeeDialog in employeeDialogInfo" :key="employeeDialog.type">
+                <span class="employee-dialog-info__label">{{ employeeDialog.label }}</span>
+                <p>{{ employee[employeeDialog.type] }}</p>
             </div>
         </div>
-
     </div>
 </template>
 
@@ -110,48 +119,21 @@ const fullName = computed(() => `${props.employee.lastName} ${props.employee.fir
     gap: 12px;
 }
 
-.employee-dialog-info__item {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 6px 14px;
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-}
-
 .employee-dialog-info__label {
     display: inline-block;
-    margin-bottom: 6px;
+    margin-bottom: 0px;
     color: #6b7280;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-}
-
-.employee-dialog-info__value {
-    margin: 0;
-    color: #111827;
-    font-size: 15px;
-    font-weight: 600;
-    line-height: 1.4;
 }
 
 .employee-dialog-info__note {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    padding: 16px;
+    padding: 10px;
     border-radius: 14px;
-    background-color: #f3f4f6;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
     border: 1px solid #e5e7eb;
-}
-
-.employee-dialog-info__note-text {
-    margin: 0;
-    color: #1f2937;
-    line-height: 1.6;
-    word-break: break-all;
 }
 </style>

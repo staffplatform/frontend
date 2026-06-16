@@ -21,12 +21,15 @@ import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import ScheduleDialogForm from '@/features/create-organization-schedule/ui/ScheduleDialogForm.vue';
 import { SCHEDULE_PERIOD_TYPES, type SchedulePeriodType } from '@/entities/schedule/model/constants';
+import { useUserStore } from '@/entities/user/model/store';
+import { ROLES_TYPES } from '@/shared/config/roles';
 
 const router = useRouter()
 const route = useRoute()
 const toast = useToast();
 
 const scheduleStore = useScheduleStore()
+const userStore = useUserStore()
 const stores = ref<IStore[] | null>(null)
 const scheduleTypes = ref<IScheduleTypes | null>(null)
 
@@ -71,6 +74,12 @@ const createSelectedDate = computed(() => {
     }
 
     return DateHelper.FullDate(Number(store.year), Number(store.month), Number(selectDay.value))
+})
+
+const currentRoleEmployee = computed(() => {
+    const assignment = userStore.user?.storeAssignments.find(assignment => assignment.storeId === scheduleStore.schedule?.store?.id)
+
+    return assignment?.role === ROLES_TYPES.OWNER || assignment?.role === ROLES_TYPES.ADMIN
 })
 
 function getScheduleQueryParams() {
@@ -488,12 +497,14 @@ onMounted(async () => {
             </div>
             <div class="period-buttons">
                 <AppButton
+                    :class="{'is-active': route.params.mode === 'month'}"
                     @click="setPeriod(SCHEDULE_PERIOD_TYPES.MONTH)"
                     variant="primary"
                 >
                     Месяц
                 </AppButton>
                 <AppButton
+                    :class="{'is-active': route.params.mode === 'week'}"
                     @click="setPeriod(SCHEDULE_PERIOD_TYPES.WEEK)"
                     variant="primary"
                 >
@@ -555,6 +566,7 @@ onMounted(async () => {
                 :selectedEntry="selectedEntry"
                 :employees="scheduleStore.schedule.employees"
                 :scheduleTypes="scheduleTypes"
+                :currentRoleEmployee="currentRoleEmployee"
                 @delete="handleScheduleDelete"
                 @edit="handleScheduleEdit"
                 />
@@ -654,6 +666,11 @@ onMounted(async () => {
 .period-buttons {
     display: flex;
     gap: 5px;
+}
+
+.is-active {
+    color: #ffffff;
+    background-color: #5b6475;
 }
 
 .arrow-buttons {

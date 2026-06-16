@@ -36,18 +36,3 @@ function closeMenu() {
         </div>
     </div>
 </template>
-
-<style scoped>
-.container {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding-right: 10px;
-    padding-left: 10px;
-
-}
-</style>

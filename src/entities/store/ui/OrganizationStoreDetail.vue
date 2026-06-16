@@ -8,7 +8,7 @@ import AppInput from '@/shared/ui/input/AppInput.vue';
 import AppButton from '@/shared/ui/button/AppButton.vue';
 import { DateHelper } from '@/shared/lib/date';
 import AppInfoBlock from '@/shared/ui/info-block/AppInfoBlock.vue';
-import type { RolesTypes } from '@/shared/config/roles';
+import { ROLE_LABELS, type RolesTypes } from '@/shared/config/roles';
 
 const isOpenSettings = ref(false)
 
@@ -16,7 +16,6 @@ const props = defineProps<{
     isEditStore: boolean
     editableStore: IStore
     employees: IOrganizationEmployee[] | null
-    roles: Record<RolesTypes, string>
 }>()
 
 const emit = defineEmits<{
@@ -39,7 +38,7 @@ function getEmployeeRole(role: RolesTypes) {
     if (!role) {
         return
     }
-    return props.roles[role]
+    return ROLE_LABELS[role]
 }
 
 function handleSettings() {

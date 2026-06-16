@@ -35,12 +35,6 @@ const visibleEmployees = ref<IOrganizationEmployee[]>([]);
 const currentEmployee = ref<IOrganizationEmployee | null>(null);
 const editableEmployee = ref<IOrganizationEmployee | null>(null);
 
-const roles = ref<Record<string, string>>({
-    OWNER: "Владелец",
-    ADMIN: "Администратор",
-    EMPLOYEE: "Сотрудник",
-});
-
 function toggleOrganizationEmployee() {
     isCreateEmployee.value = !isCreateEmployee.value;
     isEditEmployee.value = false;
@@ -209,7 +203,6 @@ onMounted(loadEmployees);
                 v-if="!isCreateEmployee"
                 :isEditEmployee
                 :editableEmployee
-                :roles
             />
             <CreateOrganizationEmployee
                 v-else

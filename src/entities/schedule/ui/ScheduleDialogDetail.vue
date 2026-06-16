@@ -1,15 +1,48 @@
 <script setup lang="ts">
 import type { IOrganizationEmployee } from '@/entities/employee/model/types';
 import type { ISchedule, IScheduleTypes } from '@/entities/schedule/model/types';
+import type { RolesTypes } from '@/shared/config/roles';
 import { AdjustmentsHorizontalIcon } from '@heroicons/vue/24/outline';
 import { ref } from 'vue';
 
+interface IScheduleDetailItem {
+    label: string,
+    type: keyof ISchedule
+    formatter?: (value: string) => string
+}
+
 const isOpenSettings = ref(false)
+
+const scheduleDetailItems: IScheduleDetailItem[] = [
+    {
+        label: 'Дата',
+        type: 'date',
+    },
+    {
+        label: 'Начало смены',
+        type: 'startTime',
+    },
+    {
+        label: 'Конец смены',
+        type: 'endTime',
+    },
+    {
+        label: 'Сотрудник',
+        type: 'userId',
+        formatter: getEmployeeName,
+    },
+    {
+        label: 'Тип смены',
+        type: 'type',
+        formatter: getScheduleTypeLabel,
+    },
+]
 
 const props = defineProps<{
     selectedEntry: ISchedule
     employees: IOrganizationEmployee[]
     scheduleTypes: IScheduleTypes | null
+    currentRoleEmployee: RolesTypes
 }>()
 
 const emit = defineEmits<{
@@ -45,6 +78,12 @@ function getEmployeeName(employeeUserId: string) {
 function getScheduleTypeLabel(type: string) {
     return props.scheduleTypes?.entryTypes.find((entry) => entry.value === type)?.label ?? type
 }
+
+function getScheduleDetailValue(scheduleDetail: IScheduleDetailItem) {
+    const value = props.selectedEntry[scheduleDetail.type]
+
+    return scheduleDetail.formatter ? scheduleDetail.formatter(value) : value
+}
 </script>
 
 <template>
@@ -54,7 +93,7 @@ function getScheduleTypeLabel(type: string) {
                 <p class="schedule-form-card__eyebrow">Расписание</p>
                 <h2 class="schedule-form-card__title">Информация о смене</h2>
             </div>
-            <div class="schedule-form-card__settings">
+            <div v-if="currentRoleEmployee" class="schedule-form-card__settings" >
                 <button class="schedule-form-card__settings-button" @click="handleSettings()">
                     <AdjustmentsHorizontalIcon class="schedule-form-card__header-icon" />
                 </button>
@@ -78,29 +117,9 @@ function getScheduleTypeLabel(type: string) {
         </div>
 
         <div class="schedule-form-card__body">
-            <div class="schedule-form-card__field">
-                <span>Дата</span>
-                <div class="schedule-form-card__value">{{ selectedEntry.date }}</div>
-            </div>
-
-            <div class="schedule-form-card__field">
-                <span>Начало смены</span>
-                <div class="schedule-form-card__value">{{ selectedEntry.startTime }}</div>
-            </div>
-
-            <div class="schedule-form-card__field">
-                <span>Конец смены</span>
-                <div class="schedule-form-card__value">{{ selectedEntry.endTime }}</div>
-            </div>
-
-            <div class="schedule-form-card__field">
-                <span>Сотрудник</span>
-                <div class="schedule-form-card__value">{{ getEmployeeName(selectedEntry.userId) }}</div>
-            </div>
-
-            <div class="schedule-form-card__field">
-                <span>Тип смены</span>
-                <div class="schedule-form-card__value">{{ getScheduleTypeLabel(selectedEntry.type) }}</div>
+            <div class="schedule-form-card__field" v-for="scheduleDetail in scheduleDetailItems" :key="scheduleDetail.type">
+                <span>{{ scheduleDetail.label }}</span>
+                <div class="schedule-form-card__value">{{ getScheduleDetailValue(scheduleDetail) }}</div>
             </div>
 
             <div v-if="selectedEntry.comment" class="schedule-form-card__field">
