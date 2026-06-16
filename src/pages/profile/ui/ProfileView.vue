@@ -10,15 +10,57 @@ import { useToast } from "vue-toastification";
 import { DateHelper } from "@/shared/lib/date";
 import type { IUser } from "@/entities/user/model/types";
 import { isApiError } from "@/shared/api/lib/isApiError";
+import { ROLE_LABELS, type RolesTypes } from "@/shared/config/roles";
 
 const toast = useToast()
 const { user, setUser } = useUserStore();
 const localUser = ref<IUser | null>(user && {...user})
 const isEdit = ref(false)
 
+const profileItems = [
+    { label: 'Номер пользователя', key: 'id',         inputType: 'text', editable: false },
+    { label: 'Почта',              key: 'email',      inputType: 'text', editable: true },
+    { label: 'Имя',                key: 'firstName',  inputType: 'text', editable: true },
+    { label: 'Фамилия',            key: 'lastName',   inputType: 'text', editable: true },
+    { label: 'Отчество',           key: 'middleName', inputType: 'text', editable: true },
+    { label: 'День рождения',      key: 'birthDate',  inputType: 'date', editable: true },
+]
+
+console.log('localUser', localUser)
+
+const profileStoreItems = [
+    {
+        label: 'Номер магазина',
+        key: 'storeId',
+        editable: true
+    },
+    {
+        label: 'Название магазина',
+        key: 'storeName',
+        editable: true
+    },
+    {
+        label: 'Роль',
+        key: 'role',
+        editable: true
+    },
+    {
+        label: 'Активен',
+        key: 'activeFrom',
+        editable: true
+    }
+]
+
+function getEmployeeRole(role: RolesTypes) {
+    if (!role) {
+        return 
+    }
+    return ROLE_LABELS[role]
+}
+
 function editProfile() {
     localUser.value = user ? { ...user } : null
-    isEdit.value = true
+    isEdit.value = !isEdit.value
 }
 
 async function saveProfile() {
@@ -36,7 +78,7 @@ async function saveProfile() {
         const data: IUser = await profileService(payload)
         setUser(data)
         localUser.value = {...data}
-        isEdit.value = false;
+        isEdit.value = !isEdit.value;
     } catch (error) {
         if (isApiError(error)) {
             toast.error(error.data.message);
@@ -46,7 +88,7 @@ async function saveProfile() {
 
 function cancelProfile() {
     localUser.value = user ? { ...user } : null
-    isEdit.value = false
+    isEdit.value = !isEdit.value
 }
 </script>
 
@@ -57,7 +99,7 @@ function cancelProfile() {
                 <p class="profile__subtitle">Информация о вашем аккаунте</p>
         </div>
 
-        <div v-if="user && localUser">
+        <div v-if="user && localUser" class="profile__tabs">
             <AppTab title="Личная информация">
                 <template #actions>
                     <button @click="editProfile()" class="profile__edit-btn" type="button" aria-label="Редактировать профиль">
@@ -65,48 +107,53 @@ function cancelProfile() {
                     </button>
                 </template>
                 <div class="profile-info">
-                    <div class="profile-card">
-                        <label class="profile-card__label">Номер пользователя</label>
+                    <div v-for="profileItem in profileItems" class="profile-card" :key="profileItem.key">
+                        <label class="profile-card__label">{{ profileItem.label }}</label>
                         <div class="profile-card__field">
-                            <AppInput v-model="localUser.id" type="text" disabled />
-                        </div>
-                    </div>
-
-                    <div class="profile-card">
-                        <label class="profile-card__label">Почта</label>
-                        <div class="profile-card__field">
-                            <AppInput v-model="localUser.email" type="text" disabled />
-                        </div>
-                    </div>
-
-                    <div class="profile-card">
-                        <label class="profile-card__label">Имя</label>
-                        <div class="profile-card__field">
-                            <AppInput v-model="localUser.firstName" type="text" :disabled="!isEdit" placeholder="Поле не заполнено" />
-                        </div>
-                    </div>
-
-                    <div class="profile-card">
-                        <label class="profile-card__label">Фамилия</label>
-                        <div class="profile-card__field">
-                            <AppInput v-model="localUser.lastName" type="text" :disabled="!isEdit" placeholder="Поле не заполнено" />
-                        </div>
-                    </div>
-
-                    <div class="profile-card">
-                        <label class="profile-card__label">День рождения</label>
-                        <div class="profile-card__field" v-if="isEdit">
-                            <AppInput v-model="localUser.birthDate" type="date" placeholder="Поле не заполнено" />
-                        </div>
-                        <div class="profile-card__readonly" v-else>
-                            {{ DateHelper.DDMMYYYY(user.birthDate) || "Поле не заполнено" }}
+                            <AppInput 
+                                v-model="localUser[profileItem.key]" 
+                                type="text" 
+                                :disabled="!profileItem.editable || !isEdit"
+                                placeholder="Поле не заполнено"
+                            />
                         </div>
                     </div>
 
                     <div v-if="isEdit" class="profile-card__buttons">
                         <AppButton @click="cancelProfile" variant="primary">Отменить</AppButton>
                         <AppButton @click="saveProfile" variant="primary">Сохранить</AppButton>
-                    </div>
+                    </div> 
+                </div>
+            </AppTab>
+            <AppTab title="Место работы">
+                <div class="profile-info">
+                    <AppTab 
+                        v-for="storeAssignment in localUser.storeAssignments" 
+                        class="profile-card-magazine"
+                        :title="`Магазин ${storeAssignment.storeName}`"
+                        :key="storeAssignment.storeId"
+                    >
+                        <div v-for="profileStore in profileStoreItems" :key="profileStore.key">
+                            <label class="profile-card__label">{{ profileStore.label }}</label>
+                            <div class="profile-card__field">
+                                <AppInput
+                                    :model-value="
+                                        profileStore.key === 'role'
+                                            ? getEmployeeRole(storeAssignment.role)
+                                            : storeAssignment[profileStore.key]
+                                    "
+                                    type="text" 
+                                    disabled
+                                    placeholder="Поле не заполнено"
+                                />
+                            </div>
+                        </div>
+                    </AppTab>
+
+                    <div v-if="isEdit" class="profile-card__buttons">
+                        <AppButton @click="cancelProfile" variant="primary">Отменить</AppButton>
+                        <AppButton @click="saveProfile" variant="primary">Сохранить</AppButton>
+                    </div> 
                 </div>
             </AppTab>
         </div>
@@ -148,6 +195,12 @@ function cancelProfile() {
     color: #4b5563;
 }
 
+.profile__tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 .profile__edit-btn {
     display: inline-flex;
     align-items: center;
@@ -178,6 +231,13 @@ function cancelProfile() {
     border-radius: 14px;
     border: 1px solid #e5e7eb;
     box-shadow: 0 6px 24px rgba(17, 24, 39, 0.06);
+}
+
+.profile-card-magazine {
+    flex: 1 1 calc(50% - 6px);
+    min-width: 280px;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
 }
 
 .profile-card__label {

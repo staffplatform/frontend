@@ -2,12 +2,14 @@ import { EMethod } from "@/shared/config/method/EMethod";
 import { EStatus } from "@/shared/config/status/EStatus";
 import Cookies from "js-cookie";
 import type { IApiError } from "../model/types";
+import { clearTokens, getRefreshToken, setToken } from "@/entities/session/api/tokenService";
 
 export function useApi(baseUrl: string) {
     async function request<T, R>(
         method: EMethod,
         url: string,
         body?: T,
+        isRetry = false
     ): Promise<R> {
         const fullUrl = baseUrl + url;
         const options: RequestInit = {
@@ -26,9 +28,34 @@ export function useApi(baseUrl: string) {
         const response = await fetch(fullUrl, options);
 
         if (!response.ok) {
-            if (response.status === EStatus.UNAUTHORIZED) {
-                Cookies.remove("accessToken")
-                Cookies.remove("refreshToken")
+            if (response.status === EStatus.UNAUTHORIZED && !isRetry) {
+                const refreshToken = getRefreshToken();
+
+                if (!refreshToken) {
+                    clearTokens();
+                    throw new Error("Сессия истекла");
+                }
+
+                const refreshResponse = await fetch(baseUrl + "/auth/refresh", {
+                    method: EMethod.POST,
+                    headers: {
+                        "Content-Type": "application/json;charset=utf-8",
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({ refreshToken }),
+                });
+
+                if (!refreshResponse.ok) {
+                    clearTokens();
+                    throw new Error("Сессия истекла");
+                }
+
+                const data = await refreshResponse.json();
+
+                setToken("accessToken", data.tokens.accessToken);
+                setToken("refreshToken", data.tokens.refreshToken);
+
+                return request(method, url, body, true);
             }
             const error = new Error() as IApiError;
             error.status = response.status;

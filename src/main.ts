@@ -6,6 +6,7 @@ import "vue-toastification/dist/index.css";
 import App from "./app/App.vue";
 import router from "./app/providers/router";
 import "./app/styles/main.css";
+import { useAuthStore } from "./entities/session/model/store.ts";
 
 const app = createApp(App)
 
@@ -23,8 +24,11 @@ const options = {
     icon: true,
     rtl: false,
 };
-
 app.use(pinia);
+
+const authStore = useAuthStore()
+await authStore.initAuth()
+
 app.use(router);
 app.use(Toast, options);
 app.mount('#app')

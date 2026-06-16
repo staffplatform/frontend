@@ -4,16 +4,11 @@ import { RegisterView } from "@/pages/register";
 import { ERouter } from "@/shared/config/router/ERouter";
 import { ERouterName } from "@/shared/config/router/ERouterName";
 import { useUserStore } from "@/entities/user/model/store";
-import { userService } from "@/entities/user/api/userService";
-import {useError} from "@/shared/lib/error/useError";
-import { getAccessToken, getRefreshToken } from "@/entities/session/api/tokenService";
 import { ProfileView } from "@/pages/profile";
 import { ScheduleView } from "@/pages/schedule";
 import { OrganizationView } from "@/pages/organization";
 import { OrganizationStoresView } from "@/pages/organization/organization-store";
 import { OrganizationEmployeeView } from "@/pages/organization/organization-employee";
-
-const { logError } = useError()
 
 const routes = [
     {
@@ -73,18 +68,6 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
     const store = useUserStore();
-    if (getAccessToken() || getRefreshToken()) {
-        try {
-            const me = await userService();
-            if (me) {
-                store.setUser(me);
-            }
-        } catch (error) {
-            if (error instanceof Error) { 
-                logError(error)
-            }
-        }
-    }
 
     if (
         !store.isLoggedIn &&

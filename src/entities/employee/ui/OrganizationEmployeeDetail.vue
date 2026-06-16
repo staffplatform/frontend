@@ -1,18 +1,53 @@
 <script setup lang="ts">
 import type { IOrganizationEmployee } from "@/entities/employee/model/types";
+import { ROLE_LABELS, type RolesTypes } from "@/shared/config/roles";
+
+type IEmployeeDetailDialogItem = {
+    label: string;
+    type: keyof IOrganizationEmployee;
+    withFallback?: boolean;
+    formatter?: (employee: IOrganizationEmployee) => string;
+};
 
 const props = defineProps<{
     isEditEmployee: boolean;
     editableEmployee: IOrganizationEmployee | null;
-    roles: Record<string, string>;
 }>();
 
-function getEmployeeRole(role?: string) {
-    return role ? (props.roles[role] ?? role) : "Не указана";
+function getEmployeeRole(role?: RolesTypes) {
+    return role ? (ROLE_LABELS[role] ?? role) : "Не указана";
 }
 
 function getEmployeeValue(value?: string | null) {
     return value || "Не указано";
+}
+
+const employeeDetailDialog: IEmployeeDetailDialogItem[] = [
+    { label: "ID пользователя", type: "userId" },
+    { label: "Email", type: "email" },
+    { label: "Фамилия", type: "lastName", withFallback: true },
+    { label: "Имя", type: "firstName", withFallback: true },
+    { label: "Отчество", type: "middleName", withFallback: true },
+    { label: "Дата рождения", type: "birthDate", withFallback: true },
+    { label: "Город работы", type: "workCity", withFallback: true },
+    { label: "ID магазина", type: "storeId", withFallback: true },
+    { label: "Активен с", type: "activeFrom", withFallback: true },
+    { label: "Назначен", type: "assignedAt", withFallback: true },
+    {
+        label: "Роль",
+        type: "role",
+        formatter: (employee) => getEmployeeRole(employee.role),
+    },
+]
+
+function getEmployeeDetailValue(employeeDetail: IEmployeeDetailDialogItem, editableEmployee: IOrganizationEmployee) {
+    if (employeeDetail.formatter) {
+        return employeeDetail.formatter(editableEmployee)
+    }
+
+    return employeeDetail.withFallback 
+        ? getEmployeeValue(editableEmployee[employeeDetail.type]) 
+        : editableEmployee[employeeDetail.type]
 }
 </script>
 
@@ -59,152 +94,14 @@ function getEmployeeValue(value?: string | null) {
             </div>
 
             <div class="organization-employees__details-list">
-                <div class="organization-employees__details-row">
-                    <span class="organization-employees__details-key"
-                        >ID пользователя</span
-                    >
-                    <span
-                        class="organization-employees__details-value"
-                        >{{ editableEmployee.userId }}</span
-                    >
-                </div>
-
-                <div class="organization-employees__details-row">
-                    <span class="organization-employees__details-key"
-                        >Email</span
-                    >
-                    <span
-                        class="organization-employees__details-value"
-                        >{{ editableEmployee.email }}</span
-                    >
-                </div>
-
-                <div class="organization-employees__details-row">
+                <div class="organization-employees__details-row" v-for="employeeDetail in employeeDetailDialog" :key="employeeDetail.type">
                     <span class="organization-employees__details-key">
-                        Фамилия
+                        {{ employeeDetail.label }}
                     </span>
                     <span
                         class="organization-employees__details-value"
                     >
-                        {{
-                            getEmployeeValue(
-                                editableEmployee.lastName,
-                            )
-                        }}
-                    </span>
-                </div>
-
-                <div class="organization-employees__details-row">
-                    <span class="organization-employees__details-key">
-                        Имя
-                    </span>
-                    <span
-                        class="organization-employees__details-value"
-                    >
-                        {{
-                            getEmployeeValue(
-                                editableEmployee.firstName,
-                            )
-                        }}
-                    </span>
-                </div>
-
-                <div class="organization-employees__details-row">
-                    <span class="organization-employees__details-key">
-                        Отчество
-                    </span>
-                    <span
-                        class="organization-employees__details-value"
-                    >
-                        {{
-                            getEmployeeValue(
-                                editableEmployee.middleName,
-                            )
-                        }}
-                    </span>
-                </div>
-
-                <div class="organization-employees__details-row">
-                    <span class="organization-employees__details-key">
-                        Дата рождения
-                    </span>
-                    <span
-                        class="organization-employees__details-value"
-                    >
-                        {{
-                            getEmployeeValue(
-                                editableEmployee.birthDate,
-                            )
-                        }}
-                    </span>
-                </div>
-
-                <div class="organization-employees__details-row">
-                    <span class="organization-employees__details-key">
-                        Город работы
-                    </span>
-                    <span
-                        class="organization-employees__details-value"
-                    >
-                        {{
-                            getEmployeeValue(
-                                editableEmployee.workCity,
-                            )
-                        }}
-                    </span>
-                </div>
-
-                <div class="organization-employees__details-row">
-                    <span class="organization-employees__details-key">
-                        ID магазина
-                    </span>
-                    <span
-                        class="organization-employees__details-value"
-                    >
-                        {{
-                            getEmployeeValue(editableEmployee.storeId)
-                        }}
-                    </span>
-                </div>
-
-                <div class="organization-employees__details-row">
-                    <span class="organization-employees__details-key">
-                        Активен с
-                    </span>
-                    <span
-                        class="organization-employees__details-value"
-                    >
-                        {{
-                            getEmployeeValue(
-                                editableEmployee.activeFrom,
-                            )
-                        }}
-                    </span>
-                </div>
-
-                <div class="organization-employees__details-row">
-                    <span class="organization-employees__details-key">
-                        Назначен
-                    </span>
-                    <span
-                        class="organization-employees__details-value"
-                    >
-                        {{
-                            getEmployeeValue(
-                                editableEmployee.assignedAt,
-                            )
-                        }}
-                    </span>
-                </div>
-
-                <div class="organization-employees__details-row">
-                    <span class="organization-employees__details-key"
-                        >Роль</span
-                    >
-                    <span
-                        class="organization-employees__details-value"
-                    >
-                        {{ getEmployeeRole(editableEmployee.role) }}
+                        {{ getEmployeeDetailValue(employeeDetail, editableEmployee) }}
                     </span>
                 </div>
             </div>
