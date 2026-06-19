@@ -70,13 +70,6 @@ watch(() => [props.selectedEntry, props.mode], () => {
 
 <template>
     <aside class="schedule-form-card">
-        <div class="schedule-form-card__header">
-            <div>
-                <p class="schedule-form-card__eyebrow">Расписание</p>
-                <h2 class="schedule-form-card__title">{{ props.mode === 'create' ? 'Создать' : 'Редактировать ' }} смену</h2>
-            </div>
-        </div>
-
         <div class="schedule-form-card__body">
             <label class="schedule-form-card__field">
                 <span>Сотрудники</span>
@@ -144,34 +137,9 @@ watch(() => [props.selectedEntry, props.mode], () => {
 
 <style scoped>
 .schedule-form-card {
-    width: 360px;
-    min-width: 360px;
     padding: 20px;
-    border: 1px solid #d6d6d6;
-    border-radius: 16px;
-    background-color: #fff;
-    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
-}
-
-.schedule-form-card__header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 20px;
-}
-
-.schedule-form-card__eyebrow {
-    margin-bottom: 6px;
-    color: #6b7280;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-}
-
-.schedule-form-card__title {
-    font-size: 24px;
-    font-weight: 600;
+    min-width: 360px;
+    width: 100%;
 }
 
 .schedule-form-card__body {

@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { XMarkIcon } from '@heroicons/vue/24/outline';
 import AppButton from '@/shared/ui/button/AppButton.vue';
 import AppModal from '@/shared/ui/modal/AppModal.vue';
 
 defineProps<{
     title?: string
+    subtitle? : string
 }>()
 const emit = defineEmits(['close'])
 </script>
@@ -13,9 +15,14 @@ const emit = defineEmits(['close'])
     <div class="dialog">
         <AppModal>
             <div class="dialog-header">
-                <AppButton @click="emit('close')" class="dialog-button-close" variant="primary">X</AppButton>
+                <div>
+                    <h1 class="dialog-title">{{ title }}</h1>
+                    <p>{{ subtitle }}</p>
+                </div>
+                <AppButton @click="emit('close')" variant="primary" >
+                    <XMarkIcon class="dialog-button-close__icon" />
+                </AppButton>
             </div>
-            <h1 class="dialog-title">{{ title }}</h1>
             <slot></slot>
         </AppModal>
     </div>
@@ -34,15 +41,19 @@ const emit = defineEmits(['close'])
 }
 
 .dialog-header {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #9a9a9a8a;
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .dialog-title {
-    font-size: 18px;
+    font-size: 22px;
 }
-.dialog-button-close {
-    width: 20px;
-    height: 20px;
+
+.dialog-button-close__icon {
+    width: 16px;
+    height: 16px;
 }
 </style>

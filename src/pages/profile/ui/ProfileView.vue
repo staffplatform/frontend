@@ -26,8 +26,6 @@ const profileItems = [
     { label: 'День рождения',      key: 'birthDate',  inputType: 'date', editable: true },
 ]
 
-console.log('localUser', localUser)
-
 const profileStoreItems = [
     {
         label: 'Номер магазина',

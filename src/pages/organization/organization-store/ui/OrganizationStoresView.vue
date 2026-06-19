@@ -22,7 +22,6 @@ import {
     getEmployeesStoreService,
 } from "@/entities/store/api/storesService";
 import { onMounted, ref } from "vue";
-import type { RolesTypes } from "@/shared/config/roles";
 
 const searchStore = ref("");
 const isStoresLoading = ref(false);

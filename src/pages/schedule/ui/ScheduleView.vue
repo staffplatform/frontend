@@ -23,14 +23,19 @@ import ScheduleDialogForm from '@/features/create-organization-schedule/ui/Sched
 import { SCHEDULE_PERIOD_TYPES, type SchedulePeriodType } from '@/entities/schedule/model/constants';
 import { useUserStore } from '@/entities/user/model/store';
 import { ROLES_TYPES } from '@/shared/config/roles';
+import AppLoading from '@/shared/ui/loading/AppLoading.vue';
+import SelectStore from '@/features/select-store/ui/SelectStore.vue';
+import AppDrawer from '@/shared/ui/drawer/AppDrawer.vue';
 
 const router = useRouter()
 const route = useRoute()
 const toast = useToast();
 
+const isLoading = ref(false)
+
 const scheduleStore = useScheduleStore()
 const userStore = useUserStore()
-const stores = ref<IStore[] | null>(null)
+const stores = ref<IStore[]>([])
 const scheduleTypes = ref<IScheduleTypes | null>(null)
 
 const selectedEntry = ref<ISchedule | null>(null)
@@ -110,6 +115,7 @@ async function loadMonth() {
     }
     scheduleStore.setSchedule(null)
 
+    isLoading.value = true
     try {
         const schedule = await getMonthScheduleService({
             storeId: params.storeId,
@@ -130,6 +136,8 @@ async function loadMonth() {
             }
         })
         scheduleStore.setSchedule(null)
+    } finally {
+        isLoading.value = false
     }
 }
 
@@ -143,6 +151,7 @@ async function loadWeek() {
         return
     }
 
+    isLoading.value = true
     try {
         const schedule = await getWeekScheduleService({
             storeId: params.storeId,
@@ -161,6 +170,8 @@ async function loadWeek() {
             }
         })
         scheduleStore.setSchedule(null)
+    } finally {
+        isLoading.value = false
     }
 }
 
@@ -484,7 +495,8 @@ onMounted(async () => {
 
 </script>
 <template>
-    <div v-if="scheduleStore.schedule" class="schedule">
+    <AppLoading v-if="isLoading"/>
+    <div v-else-if="scheduleStore.schedule" class="schedule">
         <div class="schedule-panel">
             <div class="schedule-actions">
                 <AppButton @click="showStore" variant="primary">
@@ -537,11 +549,15 @@ onMounted(async () => {
                         </div>
                     </div>
                 </div>
-                <AppDialog v-if="isEmployeeDialogOpen && selectedEmployee" @close="isEmployeeDialogOpen = false">
+                <AppDrawer
+                    v-if="isEmployeeDialogOpen && selectedEmployee" 
+                    side="left"
+                    @close="isEmployeeDialogOpen = false"
+                >
                     <EmployeeDetailsView
                         :employee="selectedEmployee"
                     />
-                </AppDialog>
+                </AppDrawer>
             </div>
             <template v-if="scheduleStore.schedule && 'month' in scheduleStore.schedule">
                 <MonthScheduleView
@@ -561,7 +577,13 @@ onMounted(async () => {
                 />
             </template>
         </div>
-        <AppDialog v-if="isScheduleDetailDialogOpen && selectedEntry" @close="isScheduleDetailDialogOpen = false">
+        <AppDrawer
+            v-if="isScheduleDetailDialogOpen && selectedEntry"
+            title="Расписание"
+            subtitle="Информация о смене"
+            side="right"
+            @close="isScheduleDetailDialogOpen = false"
+        >
             <ScheduleDialogDetail 
                 :selectedEntry="selectedEntry"
                 :employees="scheduleStore.schedule.employees"
@@ -569,9 +591,15 @@ onMounted(async () => {
                 :currentRoleEmployee="currentRoleEmployee"
                 @delete="handleScheduleDelete"
                 @edit="handleScheduleEdit"
-                />
-        </AppDialog>
-        <AppDialog v-if="isScheduleCreateDialogOpen" @close="isScheduleCreateDialogOpen = false">
+            />
+        </AppDrawer>
+        <AppDrawer 
+            v-if="isScheduleCreateDialogOpen"
+            title="Расписание"
+            subtitle="Создать смену"
+            side="right"
+            @close="isScheduleCreateDialogOpen = false"
+        >
             <ScheduleDialogForm
                 mode="create"
                 :employees="scheduleStore.schedule.employees"
@@ -582,8 +610,14 @@ onMounted(async () => {
                 @close="isScheduleCreateDialogOpen = false"
             >
             </ScheduleDialogForm>
-        </AppDialog>
-        <AppDialog v-if="isScheduleEditDialogOpen && selectedEntry" @close="isScheduleEditDialogOpen = false">
+        </AppDrawer>
+        <AppDrawer 
+            v-if="isScheduleEditDialogOpen && selectedEntry"
+            title="Расписание"
+            subtitle="Редактировать смену"
+            side="right"
+            @close="isScheduleEditDialogOpen = false"
+        >
             <ScheduleDialogForm
                 mode="edit"
                 :selectedEntry="selectedEntry"
@@ -595,32 +629,26 @@ onMounted(async () => {
                 @close="isScheduleCreateDialogOpen = false"
             >
             </ScheduleDialogForm>
-        </AppDialog>
-        <AppDialog v-if="isStoreDialogOpen" @close="isStoreDialogOpen = false" title="Выберите магазин:">
-            <ul class="card-stores">
-                <li v-for="store in stores" class="card-store" :key="store.id">
-                    <button @click="selectStore(store)">
-                        <p>{{ store.name }}</p>
-                        <span>{{ store.city }}, {{ store.address }}</span>
-                    </button>
-                </li>
-            </ul>
-        </AppDialog>
+        </AppDrawer>
+        <SelectStore
+            v-if="isStoreDialogOpen"
+            title="Выберите магазин:"
+            :stores
+            @select-store="selectStore"
+            @close="isStoreDialogOpen = false"
+        />
     </div>
     <div v-else>
         <AppButton @click="showStore" variant="primary">
             <HomeIcon class="store-picker" />
         </AppButton>
-        <AppDialog v-if="isStoreDialogOpen" @close="isStoreDialogOpen = false" title="Выберите магазин:">
-            <ul class="card-stores">
-                <li v-for="store in stores" class="card-store" :key="store.id">
-                    <button @click="selectStore(store)">
-                        <p>{{ store.name }}</p>
-                        <span>{{ store.city }}, {{ store.address }}</span>
-                    </button>
-                </li>
-            </ul>
-        </AppDialog>
+        <SelectStore
+            v-if="isStoreDialogOpen"
+            title="Выберите магазин:"
+            :stores
+            @select-store="selectStore"
+            @close="isStoreDialogOpen = false"
+        />
     </div>
 </template>
 
@@ -711,20 +739,4 @@ onMounted(async () => {
     height: 34px;
 }
 
-.card-stores {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    max-height: 450px;
-    overflow-y: scroll;
-}
-
-.card-store {
-    padding: 4px;
-    border: 1px solid #000;
-}
-
-.card-store button {
-    width: 100%;
-}
 </style>
