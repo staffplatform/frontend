@@ -11,6 +11,18 @@ interface IScheduleDetailItem {
     formatter?: (value: string) => string
 }
 
+const props = defineProps<{
+    selectedEntry: ISchedule
+    employees: IOrganizationEmployee[]
+    scheduleTypes: IScheduleTypes | null
+    currentRoleEmployee: Boolean
+}>()
+
+const emit = defineEmits<{
+    delete: [{ userId: string; date: string }]
+    edit: [ISchedule]
+}>()
+
 const isOpenSettings = ref(false)
 
 const scheduleDetailItems: IScheduleDetailItem[] = [
@@ -37,18 +49,6 @@ const scheduleDetailItems: IScheduleDetailItem[] = [
         formatter: getScheduleTypeLabel,
     },
 ]
-
-const props = defineProps<{
-    selectedEntry: ISchedule
-    employees: IOrganizationEmployee[]
-    scheduleTypes: IScheduleTypes | null
-    currentRoleEmployee: RolesTypes
-}>()
-
-const emit = defineEmits<{
-    delete: [{ userId: string; date: string }]
-    edit: [ISchedule]
-}>()
 
 function handleSettings() {
     isOpenSettings.value = !isOpenSettings.value
@@ -89,11 +89,7 @@ function getScheduleDetailValue(scheduleDetail: IScheduleDetailItem) {
 <template>
     <aside class="schedule-form-card">
         <div class="schedule-form-card__header">
-            <div>
-                <p class="schedule-form-card__eyebrow">Расписание</p>
-                <h2 class="schedule-form-card__title">Информация о смене</h2>
-            </div>
-            <div v-if="currentRoleEmployee" class="schedule-form-card__settings" >
+            <div v-if="currentRoleEmployee" class="schedule-form-card__settings">
                 <button class="schedule-form-card__settings-button" @click="handleSettings()">
                     <AdjustmentsHorizontalIcon class="schedule-form-card__header-icon" />
                 </button>
@@ -107,9 +103,9 @@ function getScheduleDetailValue(scheduleDetail: IScheduleDetailItem) {
                     </button>
                     <button
                         @click="editForm(selectedEntry)"
-                        class="schedule-form-card__settings-action" 
+                        class="schedule-form-card__settings-action"
                         type="button"
-                        >
+                    >
                         Редактировать
                     </button>
                 </div>
@@ -134,34 +130,17 @@ function getScheduleDetailValue(scheduleDetail: IScheduleDetailItem) {
 
 <style scoped>
 .schedule-form-card {
-    width: 360px;
     min-width: 360px;
-    padding: 20px;
-    border: 1px solid #d6d6d6;
+    width: 100%;
     border-radius: 16px;
-    background-color: #fff;
-    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
 }
 
 .schedule-form-card__header {
     display: flex;
     align-items: flex-start;
-    justify-content: space-between;
+    justify-content: flex-end;
     gap: 12px;
     margin-bottom: 20px;
-}
-
-.schedule-form-card__eyebrow {
-    margin-bottom: 6px;
-    color: #6b7280;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-}
-
-.schedule-form-card__title {
-    font-size: 24px;
-    font-weight: 600;
 }
 
 .schedule-form-card__header-icon {

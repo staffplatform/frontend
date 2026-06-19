@@ -4,6 +4,7 @@ import type { IUser } from '@/entities/user/model/types';
 import { useScheduleStore } from '@/entities/schedule/model/store';
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { ArrowRightEndOnRectangleIcon } from "@heroicons/vue/24/outline";
 
 interface AppHeaderProps {
     user: IUser | null,
@@ -55,7 +56,10 @@ function logout() {
             <button v-if="props.isLogin" @click="router.push({ path: ERouter.PROFILE })" type="button" >
                 <p class="user-button">{{ initials }}</p>
             </button>
-            <button v-if="props.isLogin" @click="logout" class="auth-button">Выйти</button>
+            <button v-if="props.isLogin" @click="logout" class="auth-button">
+                <ArrowRightEndOnRectangleIcon class="logout-icon" />
+                Выйти
+            </button>
         </div>
     </div>
 </template>
@@ -117,6 +121,9 @@ function logout() {
 }
 
 .auth-button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
     padding: 5px;
     border-radius: 5px;
     background-color: #fff;
@@ -124,5 +131,10 @@ function logout() {
     color: inherit;
     text-decoration: none;
     cursor: pointer;
+}
+
+.logout-icon {
+    width: 20px;
+    height: 20px;
 }
 </style>
