@@ -15,12 +15,12 @@ withDefaults(defineProps<AppButtonProps>(), {
 
 const variantClasses = {
     primary:
-        "btn btn-outline text-gray-900  border-gray-300  hover:bg-gray-100 ",
+        "btn btn-outline text-gray-900  border-gray-300  hover:bg-gray-100",
     secondary:
-        "font-medium underline text-gray-700  hover:text-gray-900 ",
-    ghost: "flex items-center gap-4 px-4 py-3 rounded-lg cursor-pointer text-gray-700  hover:bg-gray-200  hover:shadow-lg transition-colors",
+        "font-medium underline text-gray-700  hover:text-gray-900",
+    ghost: "flex items-center gap-4 px-4 py-3 rounded-lg text-gray-700  hover:bg-gray-200  hover:shadow-lg transition-colors",
     "ghost-secondary":
-        "flex items-center justify-center gap-4 px-4 py-3 rounded-lg cursor-pointer text-gray-700  hover:bg-gray-200  hover:shadow-lg transition-colors",
+        "flex items-center justify-center gap-4 px-4 py-3 rounded-lg text-gray-700  hover:bg-gray-200  hover:shadow-lg transition-colors",
 };
 </script>
 
@@ -31,6 +31,7 @@ const variantClasses = {
         :class="[
             variantClasses[variant],
             active ? 'bg-gray-200  text-gray-900 ' : '',
+            'cursor-pointer'
         ]"
         :disabled="to ? undefined : disabled"
     >
