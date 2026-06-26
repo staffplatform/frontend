@@ -1,14 +1,7 @@
 import { createWebHistory, createRouter } from "vue-router";
-import { AuthView } from "@/pages/auth";
-import { RegisterView } from "@/pages/register";
 import { ERouter } from "@/shared/config/router/ERouter";
 import { ERouterName } from "@/shared/config/router/ERouterName";
 import { useUserStore } from "@/entities/user/model/store";
-import { ProfileView } from "@/pages/profile";
-import { ScheduleView } from "@/pages/schedule";
-import { OrganizationView } from "@/pages/organization";
-import { OrganizationStoresView } from "@/pages/organization/organization-store";
-import { OrganizationEmployeeView } from "@/pages/organization/organization-employee";
 
 const routes = [
     {
@@ -18,43 +11,43 @@ const routes = [
     },
     {
         path: ERouter.AUTH,
-        component: AuthView,
         name: ERouterName.AUTH,
+        component: () => import("@/pages/auth/ui/AuthView.vue"),
     },
     {
         path: ERouter.REGISTER,
-        component: RegisterView,
+        component: () => import("@/pages/register/ui/RegisterView.vue"),
         name: ERouterName.REGISTER,
     },
     {
         path: ERouter.PROFILE,
-        component: ProfileView,
+        component: () => import("@/pages/profile/ui/ProfileView.vue"),
         name: ERouterName.PROFILE,
     },
     {
         path: ERouter.SCHEDULE,
-        component: ScheduleView,
+        component: () => import("@/pages/schedule/ui/ScheduleView.vue"),
         name: ERouterName.SCHEDULE,
     },
     {
         path: '/schedule/:mode',
-        component: ScheduleView,
+        component: () => import("@/pages/schedule/ui/ScheduleView.vue"),
         name: ERouterName.SCHEDULE_MODE,
     },
     {
         path: ERouter.ORGANIZATION,
-        component: OrganizationView,
+        component: () => import("@/pages/organization/ui/OrganizationView.vue"),
         name: ERouterName.ORGANIZATION,
-        redirect:ERouter.ORGANIZATION_STORES,
+        redirect: ERouter.ORGANIZATION_STORES,
         children: [
             {
                 path: ERouter.ORGANIZATION_STORES,
-                component: OrganizationStoresView,
+                component: () => import("@/pages/organization/organization-store/ui/OrganizationStoresView.vue"),
                 name: ERouterName.ORGANIZATION_STORES,
             },
             {
                 path: ERouter.ORGANIZATION_EMPLOYEES,
-                component: OrganizationEmployeeView,
+                component: () => import("@/pages/organization/organization-employee/ui/OrganizationEmployeeView.vue"),
                 name: ERouterName.ORGANIZATION_EMPLOYEES,
             }
         ]

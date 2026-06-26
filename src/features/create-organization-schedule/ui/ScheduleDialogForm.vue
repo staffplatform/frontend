@@ -3,7 +3,7 @@ import AppButton from '@/shared/ui/button/AppButton.vue';
 import AppInput from '@/shared/ui/input/AppInput.vue';
 import type { IOrganizationEmployee } from '@/entities/employee/model/types';
 import type { ISchedule, IScheduleTypes } from '@/entities/schedule/model/types';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 interface ScheduleEntryFormPayload {
     userId: string;
@@ -37,6 +37,10 @@ const form = ref<ScheduleEntryFormPayload>({
     type: '',
     comment: '',
 });
+
+const isValid = computed(() => 
+    form.value.date !== '' && form.value.startTime !== '' && form.value.endTime !== '' && form.value.type !== ''
+)
 
 function submitForm() {
     const payload = { ...form.value };
@@ -128,6 +132,7 @@ watch(() => [props.selectedEntry, props.mode], () => {
             <AppButton
                 @click="submitForm" 
                 variant="primary"
+                :disabled="!isValid"
             >
                 {{ props.mode === 'create' ? 'Создать' : 'Редактировать ' }}
             </AppButton>

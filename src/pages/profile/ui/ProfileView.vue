@@ -12,70 +12,100 @@ import type { IUser } from "@/entities/user/model/types";
 import { isApiError } from "@/shared/api/lib/isApiError";
 import { ROLE_LABELS, type RolesTypes } from "@/shared/config/roles";
 
-const toast = useToast()
+const toast = useToast();
 const { user, setUser } = useUserStore();
-const localUser = ref<IUser | null>(user && {...user})
-const isEdit = ref(false)
+const localUser = ref<IUser | null>(user && { ...user });
+const isEdit = ref(false);
 
 const profileItems = [
-    { label: 'Номер пользователя', key: 'id',         inputType: 'text', editable: false },
-    { label: 'Почта',              key: 'email',      inputType: 'text', editable: true },
-    { label: 'Имя',                key: 'firstName',  inputType: 'text', editable: true },
-    { label: 'Фамилия',            key: 'lastName',   inputType: 'text', editable: true },
-    { label: 'Отчество',           key: 'middleName', inputType: 'text', editable: true },
-    { label: 'День рождения',      key: 'birthDate',  inputType: 'date', editable: true },
-]
+    {
+        label: "Номер пользователя",
+        key: "id",
+        inputType: "text",
+        editable: false,
+    },
+    {
+        label: "Почта",
+        key: "email",
+        inputType: "text",
+        editable: true,
+    },
+    {
+        label: "Имя",
+        key: "firstName",
+        inputType: "text",
+        editable: true,
+    },
+    {
+        label: "Фамилия",
+        key: "lastName",
+        inputType: "text",
+        editable: true,
+    },
+    {
+        label: "Отчество",
+        key: "middleName",
+        inputType: "text",
+        editable: true,
+    },
+    {
+        label: "День рождения",
+        key: "birthDate",
+        inputType: "date",
+        editable: true,
+    },
+];
 
 const profileStoreItems = [
     {
-        label: 'Номер магазина',
-        key: 'storeId',
-        editable: true
+        label: "Номер магазина",
+        key: "storeId",
+        editable: true,
     },
     {
-        label: 'Название магазина',
-        key: 'storeName',
-        editable: true
+        label: "Название магазина",
+        key: "storeName",
+        editable: true,
     },
     {
-        label: 'Роль',
-        key: 'role',
-        editable: true
+        label: "Роль",
+        key: "role",
+        editable: true,
     },
     {
-        label: 'Активен',
-        key: 'activeFrom',
-        editable: true
-    }
-]
+        label: "Активен",
+        key: "activeFrom",
+        editable: true,
+    },
+];
 
 function getEmployeeRole(role: RolesTypes) {
     if (!role) {
-        return 
+        return;
     }
-    return ROLE_LABELS[role]
+    return ROLE_LABELS[role];
 }
 
 function editProfile() {
-    localUser.value = user ? { ...user } : null
-    isEdit.value = !isEdit.value
+    localUser.value = user ? { ...user } : null;
+    isEdit.value = !isEdit.value;
 }
 
 async function saveProfile() {
     if (!localUser.value) {
-        return
+        return;
     }
 
     const payload = {
         firstName: localUser.value.firstName,
         lastName: localUser.value.lastName,
-        birthDate: DateHelper.YYYYMMDD(localUser.value.birthDate) ?? ''
+        birthDate: DateHelper.YYYYMMDD(localUser.value.birthDate) ?? "",
     };
 
     try {
-        const data: IUser = await profileService(payload)
-        setUser(data)
-        localUser.value = {...data}
+        const data: IUser = await profileService(payload);
+        setUser(data);
+        localUser.value = { ...data };
         isEdit.value = !isEdit.value;
     } catch (error) {
         if (isApiError(error)) {
@@ -85,32 +115,41 @@ async function saveProfile() {
 }
 
 function cancelProfile() {
-    localUser.value = user ? { ...user } : null
-    isEdit.value = !isEdit.value
+    localUser.value = user ? { ...user } : null;
+    isEdit.value = !isEdit.value;
 }
 </script>
 
 <template>
     <section class="profile">
         <div class="profile__header">
-                <h1 class="profile__title">Профиль</h1>
-                <p class="profile__subtitle">Информация о вашем аккаунте</p>
+            <h1 class="profile__title">Профиль</h1>
+            <p class="profile__subtitle">Информация о вашем аккаунте</p>
         </div>
 
         <div v-if="user && localUser" class="profile__tabs">
             <AppTab title="Личная информация">
                 <template #actions>
-                    <button @click="editProfile()" class="profile__edit-btn" type="button" aria-label="Редактировать профиль">
+                    <button
+                        @click="editProfile()"
+                        class="profile__edit-btn"
+                        type="button"
+                        aria-label="Редактировать профиль"
+                    >
                         <PencilSquareIcon class="profile__edit-icon" />
                     </button>
                 </template>
                 <div class="profile-info">
-                    <div v-for="profileItem in profileItems" class="profile-card" :key="profileItem.key">
+                    <div
+                        v-for="profileItem in profileItems"
+                        class="profile-card"
+                        :key="profileItem.key"
+                    >
                         <label class="profile-card__label">{{ profileItem.label }}</label>
                         <div class="profile-card__field">
-                            <AppInput 
-                                v-model="localUser[profileItem.key]" 
-                                type="text" 
+                            <AppInput
+                                v-model="localUser[profileItem.key]"
+                                type="text"
                                 :disabled="!profileItem.editable || !isEdit"
                                 placeholder="Поле не заполнено"
                             />
@@ -120,13 +159,13 @@ function cancelProfile() {
                     <div v-if="isEdit" class="profile-card__buttons">
                         <AppButton @click="cancelProfile" variant="primary">Отменить</AppButton>
                         <AppButton @click="saveProfile" variant="primary">Сохранить</AppButton>
-                    </div> 
+                    </div>
                 </div>
             </AppTab>
             <AppTab title="Место работы">
                 <div class="profile-info">
-                    <AppTab 
-                        v-for="storeAssignment in localUser.storeAssignments" 
+                    <AppTab
+                        v-for="storeAssignment in localUser.storeAssignments"
                         class="profile-card-magazine"
                         :title="`Магазин ${storeAssignment.storeName}`"
                         :key="storeAssignment.storeId"
@@ -140,7 +179,7 @@ function cancelProfile() {
                                             ? getEmployeeRole(storeAssignment.role)
                                             : storeAssignment[profileStore.key]
                                     "
-                                    type="text" 
+                                    type="text"
                                     disabled
                                     placeholder="Поле не заполнено"
                                 />
@@ -151,14 +190,12 @@ function cancelProfile() {
                     <div v-if="isEdit" class="profile-card__buttons">
                         <AppButton @click="cancelProfile" variant="primary">Отменить</AppButton>
                         <AppButton @click="saveProfile" variant="primary">Сохранить</AppButton>
-                    </div> 
+                    </div>
                 </div>
             </AppTab>
         </div>
 
-        <div class="profile__empty" v-else>
-            Данные пользователя недоступны
-        </div>
+        <div class="profile__empty" v-else>Данные пользователя недоступны</div>
     </section>
 </template>
 

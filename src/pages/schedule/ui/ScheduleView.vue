@@ -73,12 +73,20 @@ const currentPeriodLabel = computed(() => {
 
 const createSelectedDate = computed(() => {
     const store = scheduleStore.schedule
-
-    if (!store || !("year" in store) || !("month" in store)) {
+    if (!store) {
         return ''
     }
 
-    return DateHelper.FullDate(Number(store.year), Number(store.month), Number(selectDay.value))
+    if ("month" in store) {
+        return DateHelper.FullDate(Number(store.year), Number(store.month), Number(selectDay.value))
+    }
+
+    if ("week" in store) {
+        const [year, month] = store.week.split("-")
+        return DateHelper.FullDate(Number(year), Number(month), Number(selectDay.value))
+    }
+
+    return ''
 })
 
 const currentRoleEmployee = computed(() => {
@@ -524,8 +532,8 @@ onMounted(async () => {
                 </AppButton>
             </div>
             <div class="arrow-buttons">
-                <AppButton @click="handlePeriodPrev()" variant="primary">Назад</AppButton>
-                <AppButton @click="handlePeriodNext()" variant="primary">Вперед</AppButton>
+                <AppButton @click="handlePeriodPrev()" class="arrow-button" variant="primary">Назад</AppButton>
+                <AppButton @click="handlePeriodNext()" class="arrow-button" variant="primary">Вперед</AppButton>
             </div>
         </div>
         <div class="schedule-info">
@@ -706,6 +714,12 @@ onMounted(async () => {
     gap: 5px;
 }
 
+.arrow-button:hover {
+    color: #ffffff;
+    background-color: #5b6475;
+    transition: all 0.5s ease;
+}
+
 .schedule-employees {
     margin-bottom: 16px;
     font-size: 26px;
@@ -738,5 +752,4 @@ onMounted(async () => {
     width: 34px;
     height: 34px;
 }
-
 </style>
